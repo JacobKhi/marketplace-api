@@ -32,15 +32,19 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize -> {
-                    // Bloco de requisições públicas
-                    authorize.requestMatchers(HttpMethod.POST, "/login").permitAll();
-                    authorize.requestMatchers(HttpMethod.POST, "/usuarios").permitAll();
-                    authorize.requestMatchers(HttpMethod.GET, "/").permitAll();
+                .authorizeHttpRequests(authorize -> authorize
 
-                    // Bloco de requisições protegidas (qualquer outra)
-                    authorize.anyRequest().authenticated();
-                })
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/produtos/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/categorias/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/").permitAll()
+
+                        // Protege todo o resto
+                        .anyRequest().authenticated()
+                )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
