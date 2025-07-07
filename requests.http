@@ -1,0 +1,136 @@
+### ===================================================
+### PASSO 1: Criar um Usuário que será VENDEDOR
+### ===================================================
+# Primeiro, criamos um usuário com o perfil de VENDEDOR.
+# Anote o ID que for retornado na resposta (será '1' se o banco estiver vazio).
+POST http://localhost:8080/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Loja de Eletrônicos Tuds",
+  "email": "vendedor@email.com",
+  "senha": "senha_vendedor",
+  "telefone": "11988887777",
+  "documento": "11222333000144",
+  "perfil": "VENDEDOR"
+}
+
+
+### ===================================================
+### PASSO 2: Criar um Usuário que será COMPRADOR
+### ===================================================
+# Agora, criamos um usuário com o perfil de COMPRADOR.
+# Anote o ID que for retornado na resposta (provavelmente '2').
+POST http://localhost:8080/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Fulano da Silva",
+  "email": "comprador@email.com",
+  "senha": "senha_comprador",
+  "telefone": "22999995555",
+  "documento": "12345678900",
+  "perfil": "COMPRADOR"
+}
+
+
+### ===================================================
+### PASSO 3: Criar uma Categoria
+### ===================================================
+# Criamos uma categoria para nossos produtos.
+# Anote o ID retornado (provavelmente '1').
+POST http://localhost:8080/categorias
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXJrZXRwbGFjZS1hcGkiLCJzdWIiOiJ2ZW5kZWRvckBlbWFpbC5jb20iLCJpYXQiOjE3NTE4NjAwMjQsImV4cCI6MTc1MTg2NzIyNH0.kVfqzTAU0OQRwQwfDFYVUh5RbLAh0LMPVpGzrEjGP58
+
+{
+  "nome": "Smartphones",
+  "descricao": "Celulares e smartphones de última geração"
+}
+
+
+### ===================================================
+### PASSO 4: Fazer Login como VENDEDOR para obter um Token
+### ===================================================
+# Usamos as credenciais do VENDEDOR para obter um token de acesso.
+# COPIE a longa string do token que aparecer na resposta.
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "email": "vendedor@email.com",
+  "senha": "senha_vendedor"
+}
+
+
+### ===================================================
+### PASSO 5: Criar um Produto (Autenticado como VENDEDOR)
+### ===================================================
+# Agora usamos o token do VENDEDOR para nos autenticarmos e criar um produto.
+# **IMPORTANTE:** Substitua 'seu_token_de_vendedor_aqui' pelo token que você copiou.
+# Use os IDs do VENDEDOR e da CATEGORIA que você anotou.
+POST http://localhost:8080/produtos
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXJrZXRwbGFjZS1hcGkiLCJzdWIiOiJ2ZW5kZWRvckBlbWFpbC5jb20iLCJpYXQiOjE3NTE4NjAwMjQsImV4cCI6MTc1MTg2NzIyNH0.kVfqzTAU0OQRwQwfDFYVUh5RbLAh0LMPVpGzrEjGP58
+
+{
+  "nome": "SuperPhone Pro Max",
+  "descricao": "O melhor smartphone do mercado com câmera tripla.",
+  "preco": 4500.00,
+  "estoque": 50,
+  "categoriaId": 1,
+  "vendedorId": 1
+}
+
+
+### ===================================================
+### PASSO 6: Fazer Login como COMPRADOR para obter um Token
+### ===================================================
+# Agora, o comprador faz login para realizar a compra.
+# COPIE este novo token, que pertence ao comprador.
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "email": "comprador@email.com",
+  "senha": "senha_comprador"
+}
+
+
+### ===================================================
+### PASSO 7: Criar um Pedido (Autenticado como COMPRADOR)
+### ===================================================
+# O comprador, usando seu próprio token, cria um pedido.
+# **IMPORTANTE:** Substitua 'seu_token_de_comprador_aqui' pelo token novo.
+# Use o ID do COMPRADOR e o ID do PRODUTO que você anotou.
+POST http://localhost:8080/pedidos
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXJrZXRwbGFjZS1hcGkiLCJzdWIiOiJ2ZW5kZWRvckBlbWFpbC5jb20iLCJpYXQiOjE3NTE4NjA2MDMsImV4cCI6MTc1MTg2NzgwM30.LMWfIYi3s4Gu9sGmU3-3eDTrbPLT5a7fRwxFPUFKQXc
+
+{
+  "compradorId": 2,
+  "itens": [
+    {
+      "produtoId": 1,
+      "quantidade": 1
+    }
+  ]
+}
+
+
+### ===================================================
+### PASSO 8: Criar uma Avaliação (Autenticado como COMPRADOR)
+### ===================================================
+# Por fim, o comprador avalia o pedido que acabou de fazer.
+# **IMPORTANTE:** Use o mesmo token de comprador.
+# Use o ID do PEDIDO que foi retornado no passo anterior e o ID do COMPRADOR.
+POST http://localhost:8080/avaliacoes
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXJrZXRwbGFjZS1hcGkiLCJzdWIiOiJ2ZW5kZWRvckBlbWFpbC5jb20iLCJpYXQiOjE3NTE4NjA2MDMsImV4cCI6MTc1MTg2NzgwM30.LMWfIYi3s4Gu9sGmU3-3eDTrbPLT5a7fRwxFPUFKQXc
+
+{
+  "pedidoId": 1,
+  "avaliadorId": 2,
+  "nota": 5,
+  "comentario": "Chegou muito rápido, produto excelente!"
+}
