@@ -424,3 +424,31 @@ Content-Type: application/json
 {
   "status": "ENVIADO"
 }
+
+### =================================================================
+### ETAPA 12: TESTES DE ADIÇÃO DE CÓDIGO DE RASTREIO
+### =================================================================
+
+### 12.1 - Tentar adicionar rastreio em pedido alheio (DEVE FALHAR)
+# Logados como Vendedor 2, vamos tentar adicionar o rastreio no Pedido 1 (do Vendedor 1).
+# A resposta esperada é um erro (403 ou 500).
+PATCH {{baseUrl}}/pedidos/1/rastreio
+Authorization: Bearer {{vendedor2_token}}
+Content-Type: application/json
+
+{
+  "codigoRastreio": "FAIL123XYZ"
+}
+
+###
+
+### 12.2 - Vendedor certo adicionando o rastreio (DEVE FUNCIONAR)
+# Agora, logados como VENDEDOR 1, vamos adicionar o código de rastreio.
+# A resposta esperada é 200 OK com o pedido mostrando o novo código.
+PATCH {{baseUrl}}/pedidos/1/rastreio
+Authorization: Bearer {{vendedor_token}}
+Content-Type: application/json
+
+{
+  "codigoRastreio": "BR123456789PT"
+}

@@ -25,6 +25,8 @@ public class Pedido {
     @Enumerated(EnumType.STRING)
     private StatusPedido status;
 
+    private String codigoRastreio;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comprador_id")
     private Usuario comprador;

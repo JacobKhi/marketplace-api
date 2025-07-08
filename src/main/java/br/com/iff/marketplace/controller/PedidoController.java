@@ -45,4 +45,15 @@ public class PedidoController {
         Pedido pedidoAtualizado = service.atualizarStatusPedido(id, novoStatus);
         return ResponseEntity.ok(new PedidoResponseDTO(pedidoAtualizado));
     }
+
+    // Endpoint para ADICIONAR O CÓDIGO DE RASTREIO em um pedido
+    @PatchMapping("/{id}/rastreio")
+    public ResponseEntity<PedidoResponseDTO> adicionarCodigoRastreio(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        String codigoRastreio = body.get("codigoRastreio");
+        Pedido pedidoAtualizado = service.adicionarCodigoRastreio(id, codigoRastreio);
+        return ResponseEntity.ok(new PedidoResponseDTO(pedidoAtualizado));
+    }
 }

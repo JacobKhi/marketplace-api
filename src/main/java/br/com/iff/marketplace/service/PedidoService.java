@@ -27,6 +27,18 @@ public class PedidoService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    public List<PedidoResponseDTO> listarPedidos() {
+        return pedidoRepository.findAll().stream()
+                .map(PedidoResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    public PedidoResponseDTO buscarPorId(Long id) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
+        return new PedidoResponseDTO(pedido);
+    }
+
     @Transactional
     public Pedido criarPedido(PedidoRequestDTO dto) {
         Usuario comprador = usuarioRepository.findById(dto.getCompradorId())
@@ -68,39 +80,34 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
-    public List<PedidoResponseDTO> listarPedidos() {
-        return pedidoRepository.findAll().stream()
-                .map(PedidoResponseDTO::new)
-                .collect(Collectors.toList());
-    }
-
-    public PedidoResponseDTO buscarPorId(Long id) {
-        Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
-        return new PedidoResponseDTO(pedido);
-    }
-
-    @Transactional
-    public Pedido atualizarStatusPedido(Long id, StatusPedido novoStatus) {
-        // log.info("SERVICE: Recebida requisição para atualizar status do pedido ID {} para {}", id, novoStatus);
-
+    private Pedido verificaVendedorDoPedido(Long pedidoId) {
         Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        // log.info("SERVICE: Usuário logado: ID {}", usuarioLogado.getId());
 
-        Pedido pedidoEncontrado = pedidoRepository.findById(id)
+        Pedido pedidoEncontrado = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
 
         boolean isVendedorDoPedido = pedidoEncontrado.getItens().stream()
                 .anyMatch(item -> item.getProduto().getVendedor().getId().equals(usuarioLogado.getId()));
 
         if (!isVendedorDoPedido) {
-            // log.warn("SERVICE: ACESSO NEGADO! Usuário {} tentou mudar status de um pedido no qual não é vendedor.", usuarioLogado.getId());
             throw new RuntimeException("Acesso negado: Você não é o vendedor de nenhum item neste pedido.");
         }
 
-        // log.info("SERVICE: Acesso permitido. Alterando status do pedido ID {} para {}", id, novoStatus);
-        pedidoEncontrado.setStatus(novoStatus);
+        return pedidoEncontrado; // Retorna o pedido se a verificação passar
+    }
 
+    @Transactional
+    public Pedido adicionarCodigoRastreio(Long id, String codigoRastreio) {
+        Pedido pedidoEncontrado = verificaVendedorDoPedido(id);
+        pedidoEncontrado.setCodigoRastreio(codigoRastreio);
         return pedidoRepository.save(pedidoEncontrado);
     }
+
+    @Transactional
+    public Pedido atualizarStatusPedido(Long id, StatusPedido novoStatus) {
+        Pedido pedidoEncontrado = verificaVendedorDoPedido(id);
+        pedidoEncontrado.setStatus(novoStatus);
+        return pedidoRepository.save(pedidoEncontrado);
+    }
+
 }
