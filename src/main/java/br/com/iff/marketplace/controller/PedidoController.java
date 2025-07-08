@@ -34,7 +34,6 @@ public class PedidoController {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
-    // Endpoint para ATUALIZAR O STATUS de um pedido
     @PatchMapping("/{id}/status")
     public ResponseEntity<PedidoResponseDTO> atualizarStatusPedido(
             @PathVariable Long id,
@@ -46,7 +45,6 @@ public class PedidoController {
         return ResponseEntity.ok(new PedidoResponseDTO(pedidoAtualizado));
     }
 
-    // Endpoint para ADICIONAR O CÓDIGO DE RASTREIO em um pedido
     @PatchMapping("/{id}/rastreio")
     public ResponseEntity<PedidoResponseDTO> adicionarCodigoRastreio(
             @PathVariable Long id,

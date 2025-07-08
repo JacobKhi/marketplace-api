@@ -1,0 +1,136 @@
+@baseUrl = http://localhost:8080
+
+###
+
+# =================================================================
+# ETAPA 1: CADASTRO DOS USUÁRIOS
+# =================================================================
+
+### 1.1 - Criar Usuário VENDEDOR
+POST {{baseUrl}}/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Loja de Eletrônicos Tuds",
+  "email": "vendedor@email.com",
+  "senha": "senha_vendedor",
+  "telefone": "11988887777",
+  "documento": "11222333000144",
+  "perfil": "VENDEDOR"
+}
+> {% client.global.set("vendedor_id", response.body.id); %}
+
+
+###
+
+### 1.2 - Criar Usuário COMPRADOR
+POST {{baseUrl}}/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Fulano da Silva",
+  "email": "comprador@email.com",
+  "senha": "senha_comprador",
+  "telefone": "22999995555",
+  "documento": "12345678900",
+  "perfil": "COMPRADOR"
+}
+> {% client.global.set("comprador_id", response.body.id); %}
+
+
+###
+# =================================================================
+# ETAPA 2: LOGINS (Para obter e salvar os Tokens)
+# =================================================================
+
+### 2.1 - Login VENDEDOR
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "vendedor@email.com",
+  "senha": "senha_vendedor"
+}
+> {% client.global.set("vendedor_token", response.body); %}
+
+###
+
+### 2.2 - Login COMPRADOR
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "comprador@email.com",
+  "senha": "senha_comprador"
+}
+> {% client.global.set("comprador_token", response.body); %}
+
+
+###
+# =================================================================
+# ETAPA 3: FLUXO DE CRIAÇÃO (Produto Base e Variações)
+# =================================================================
+
+### 3.1 - Criar uma Categoria
+POST {{baseUrl}}/categorias
+Content-Type: application/json
+Authorization: Bearer {{vendedor_token}}
+
+{
+  "nome": "Camisetas",
+  "descricao": "Camisetas de algodão para o dia a dia"
+}
+> {% client.global.set("categoria_id", response.body.id); %}
+
+###
+
+### 3.2 - Criar um Produto BASE
+POST {{baseUrl}}/produtos
+Content-Type: application/json
+Authorization: Bearer {{vendedor_token}}
+
+{
+  "nome": "Camiseta Gola V",
+  "descricao": "Camiseta de algodão com gola em V.",
+  "marca": "Marketplace Basics",
+  "categoriaId": {{categoria_id}},
+  "vendedorId": {{vendedor_id}}
+}
+> {% client.global.set("produto_id", response.body.id); %}
+
+
+###
+
+### 3.3 - Adicionar Variação ao Produto
+POST {{baseUrl}}/produtos/{{produto_id}}/variacoes
+Content-Type: application/json
+Authorization: Bearer {{vendedor_token}}
+
+{
+  "nome": "Cor: Azul, Tamanho: M",
+  "sku": "CAM-V-AZ-M",
+  "preco": 89.90,
+  "estoque": 100
+}
+> {% client.global.set("variacao_id", response.body.id); %}
+
+
+###
+# =================================================================
+# ETAPA 4: FLUXO DE COMPRA
+# =================================================================
+
+### 4.1 - Criar um Pedido com uma Variação Específica
+POST {{baseUrl}}/pedidos
+Content-Type: application/json
+Authorization: Bearer {{comprador_token}}
+
+{
+  "compradorId": {{comprador_id}},
+  "itens": [
+    {
+      "variacaoId": {{variacao_id}},
+      "quantidade": 1
+    }
+  ]
+}

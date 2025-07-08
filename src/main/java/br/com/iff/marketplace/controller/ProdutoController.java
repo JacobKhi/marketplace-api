@@ -1,6 +1,7 @@
 package br.com.iff.marketplace.controller;
 
 import br.com.iff.marketplace.controller.dto.ProdutoRequestDTO;
+import br.com.iff.marketplace.controller.dto.VariacaoResponseDTO;
 import br.com.iff.marketplace.model.Produto;
 import br.com.iff.marketplace.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,9 @@ import java.math.BigDecimal;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import br.com.iff.marketplace.model.VariacaoProduto;
+import br.com.iff.marketplace.controller.dto.VariacaoRequestDTO;
 
 @RestController
 @RequestMapping("/produtos")
@@ -27,6 +31,16 @@ public class ProdutoController {
         return ResponseEntity.ok(novoProduto);
     }
 
+    @PostMapping("/{produtoId}/variacoes")
+    public ResponseEntity<VariacaoResponseDTO> adicionarVariacao(
+            @PathVariable Long produtoId,
+            @RequestBody VariacaoRequestDTO variacaoDTO) {
+
+        VariacaoProduto novaVariacao = service.adicionarVariacao(produtoId, variacaoDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new VariacaoResponseDTO(novaVariacao));
+    }
+
     @GetMapping
     public ResponseEntity<List<ProdutoResponseDTO>> listarProdutos(
             @RequestParam(value = "nome", required = false) String nome,
@@ -40,7 +54,6 @@ public class ProdutoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ProdutoResponseDTO> atualizarProduto(@PathVariable Long id, @RequestBody ProdutoRequestDTO produtoDTO) {
-        log.debug("CONTROLLER: Requisição PUT recebida para o produto ID: {}", id);
         Produto produtoAtualizado = service.atualizarProduto(id, produtoDTO);
         return ResponseEntity.ok(new ProdutoResponseDTO(produtoAtualizado));
     }

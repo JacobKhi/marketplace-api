@@ -11,6 +11,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import java.util.ArrayList;
+import java.util.List;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToMany;
 
 @Data
 @EqualsAndHashCode(of = "id")
@@ -26,10 +30,6 @@ public class Produto {
     @Column(length = 1000)
     private String descricao;
 
-    private BigDecimal preco;
-
-    private Integer estoque;
-
     private String marca;
 
     private Boolean anuncioPatrocinado;
@@ -43,4 +43,7 @@ public class Produto {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vendedor_id")
     private Usuario vendedor;
+
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VariacaoProduto> variacoes = new ArrayList<>();
 }

@@ -26,6 +26,9 @@ public class PedidoService {
     private ProdutoRepository produtoRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private VariacaoProdutoRepository variacaoProdutoRepository;
+
 
     public List<PedidoResponseDTO> listarPedidos() {
         return pedidoRepository.findAll().stream()
@@ -54,24 +57,24 @@ public class PedidoService {
         BigDecimal valorTotal = BigDecimal.ZERO;
 
         for (ItemPedidoRequestDTO itemDTO : dto.getItens()) {
-            Produto produto = produtoRepository.findById(itemDTO.getProdutoId())
-                    .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
+            VariacaoProduto variacao = variacaoProdutoRepository.findById(itemDTO.getVariacaoId())
+                    .orElseThrow(() -> new RuntimeException("Variação de produto não encontrada!"));
 
-            if (produto.getEstoque() < itemDTO.getQuantidade()) {
-                throw new RuntimeException("Estoque insuficiente para o produto: " + produto.getNome());
+            if (variacao.getEstoque() < itemDTO.getQuantidade()) {
+                throw new RuntimeException("Estoque insuficiente para a variação: " + variacao.getNome());
             }
 
             ItemPedido itemPedido = new ItemPedido();
-            itemPedido.setProduto(produto);
+            itemPedido.setProduto(variacao.getProduto());
             itemPedido.setQuantidade(itemDTO.getQuantidade());
-            itemPedido.setPrecoUnitario(produto.getPreco());
+            itemPedido.setPrecoUnitario(variacao.getPreco());
             itemPedido.setPedido(pedido);
             itensPedido.add(itemPedido);
 
-            produto.setEstoque(produto.getEstoque() - itemDTO.getQuantidade());
-            produtoRepository.save(produto);
+            variacao.setEstoque(variacao.getEstoque() - itemDTO.getQuantidade());
+            variacaoProdutoRepository.save(variacao);
 
-            valorTotal = valorTotal.add(produto.getPreco().multiply(new BigDecimal(itemDTO.getQuantidade())));
+            valorTotal = valorTotal.add(variacao.getPreco().multiply(new BigDecimal(itemDTO.getQuantidade())));
         }
 
         pedido.setItens(itensPedido);
