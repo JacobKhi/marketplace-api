@@ -277,3 +277,30 @@ Authorization: Bearer {{vendedor_token}}
 
 ###
 
+### =================================================================
+### ETAPA 9: TESTES DA BUSCA DE PRODUTOS COM FILTRO
+### =================================================================
+
+### 9.1 - Listar TODOS os produtos (sem filtro)
+# Chamando o endpoint sem parâmetros.
+# A gente espera que o "SuperPhone Pro Max" retorne aqui.
+GET {{baseUrl}}/produtos
+
+
+###
+
+### 9.2 - Listar produtos com filtro de nome (encontrando resultado)
+# A gente vai buscar por "Phone", que é parte de "SuperPhone Pro Max".
+# A resposta deve ser uma lista contendo nosso produto.
+GET {{baseUrl}}/produtos?nome=Phone
+
+
+###
+
+### 9.3 - Listar produtos com filtro de nome (sem resultado)
+# A gente vai buscar por "Tablet". Como não cadastramos nenhum,
+# a resposta deve ser uma lista vazia [].
+GET {{baseUrl}}/produtos?nome=Tablet
+
+###
+

@@ -28,8 +28,10 @@ public class ProdutoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProdutoResponseDTO>> listarProdutos() {
-        List<ProdutoResponseDTO> produtos = service.listarProdutos();
+    public ResponseEntity<List<ProdutoResponseDTO>> listarProdutos(
+            @RequestParam(value = "nome", required = false) String nome) {
+
+        List<ProdutoResponseDTO> produtos = service.listarProdutos(nome);
         return ResponseEntity.ok(produtos);
     }
 

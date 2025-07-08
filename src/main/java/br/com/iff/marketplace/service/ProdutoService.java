@@ -15,6 +15,8 @@ import br.com.iff.marketplace.controller.dto.ProdutoResponseDTO;
 import java.util.stream.Collectors;
 import org.springframework.security.core.context.SecurityContextHolder;
 import br.com.iff.marketplace.model.Usuario;
+import org.springframework.data.jpa.domain.Specification;
+import br.com.iff.marketplace.repository.specifications.ProdutoSpecification;
 
 @Service
 @Slf4j
@@ -73,14 +75,14 @@ public class ProdutoService {
     }
 
     public void deletarProduto(Long id) {
-        log.info("SERVICE: Recebida requisição para deletar o produto ID: {}", id);
+        log.debug("SERVICE: Recebida requisição para deletar o produto ID: {}", id);
 
         Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info("SERVICE: Usuário logado: ID {}", usuarioLogado.getId());
+        log.debug("SERVICE: Usuário logado: ID {}", usuarioLogado.getId());
 
         Produto produtoEncontrado = produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
-        log.info("SERVICE: Produto encontrado. Vendedor do produto: ID {}", produtoEncontrado.getVendedor().getId());
+        log.debug("SERVICE: Produto encontrado. Vendedor do produto: ID {}", produtoEncontrado.getVendedor().getId());
 
         if (!produtoEncontrado.getVendedor().getId().equals(usuarioLogado.getId())) {
             log.warn("SERVICE: ACESSO NEGADO! Usuário {} tentou deletar produto do vendedor {}", usuarioLogado.getId(), produtoEncontrado.getVendedor().getId());
@@ -88,11 +90,17 @@ public class ProdutoService {
         }
 
         produtoRepository.deleteById(id);
-        log.info("SERVICE: Produto ID {} deletado com sucesso pelo dono.", id);
+        log.debug("SERVICE: Produto ID {} deletado com sucesso pelo dono.", id);
     }
 
-    public List<ProdutoResponseDTO> listarProdutos() {
-        List<Produto> produtos = produtoRepository.findAll();
+    public List<ProdutoResponseDTO> listarProdutos(String nome) {
+        Specification<Produto> spec = (root, query, builder) -> builder.conjunction();
+
+        if (nome != null && !nome.isBlank()) {
+            spec = spec.and(ProdutoSpecification.comNome(nome));
+        }
+
+        List<Produto> produtos = produtoRepository.findAll(spec);
 
         return produtos.stream()
                 .map(ProdutoResponseDTO::new)
