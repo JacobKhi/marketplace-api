@@ -1,9 +1,14 @@
-### ===================================================
-### PASSO 1: Criar um Usuário que será VENDEDOR
-### ===================================================
-# Primeiro, criamos um usuário com o perfil de VENDEDOR.
-# Anote o ID que for retornado na resposta (será '1' se o banco estiver vazio).
-POST http://localhost:8080/usuarios
+// Define uma variável com a URL base da nossa API para não precisar repetir
+@baseUrl = http://localhost:8080
+
+###
+
+# =================================================================
+# ETAPA 1: CADASTRO DOS USUÁRIOS
+# =================================================================
+
+# 1.1 - Criar Usuário VENDEDOR
+POST {{baseUrl}}/usuarios
 Content-Type: application/json
 
 {
@@ -15,13 +20,10 @@ Content-Type: application/json
   "perfil": "VENDEDOR"
 }
 
+###
 
-### ===================================================
-### PASSO 2: Criar um Usuário que será COMPRADOR
-### ===================================================
-# Agora, criamos um usuário com o perfil de COMPRADOR.
-# Anote o ID que for retornado na resposta (provavelmente '2').
-POST http://localhost:8080/usuarios
+# 1.2 - Criar Usuário COMPRADOR
+POST {{baseUrl}}/usuarios
 Content-Type: application/json
 
 {
@@ -33,45 +35,83 @@ Content-Type: application/json
   "perfil": "COMPRADOR"
 }
 
+###
 
-### ===================================================
-### PASSO 3: Criar uma Categoria
-### ===================================================
-# Criamos uma categoria para nossos produtos.
-# Anote o ID retornado (provavelmente '1').
-POST http://localhost:8080/categorias
+# 1.3 - Criar Usuário ADMINISTRADOR
+POST {{baseUrl}}/usuarios
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXJrZXRwbGFjZS1hcGkiLCJzdWIiOiJ2ZW5kZWRvckBlbWFpbC5jb20iLCJpYXQiOjE3NTE4NjAwMjQsImV4cCI6MTc1MTg2NzIyNH0.kVfqzTAU0OQRwQwfDFYVUh5RbLAh0LMPVpGzrEjGP58
 
 {
-  "nome": "Smartphones",
-  "descricao": "Celulares e smartphones de última geração"
+  "nome": "Admin do Sistema",
+  "email": "admin@email.com",
+  "senha": "senha_admin",
+  "telefone": "11911112222",
+  "documento": "11122233300",
+  "perfil": "ADMINISTRADOR"
 }
 
+###
 
-### ===================================================
-### PASSO 4: Fazer Login como VENDEDOR para obter um Token
-### ===================================================
-# Usamos as credenciais do VENDEDOR para obter um token de acesso.
-# COPIE a longa string do token que aparecer na resposta.
-POST http://localhost:8080/login
+# =================================================================
+# ETAPA 2: LOGINS (Para obter os Tokens)
+# =================================================================
+
+# 2.1 - Login VENDEDOR
+POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
   "email": "vendedor@email.com",
   "senha": "senha_vendedor"
 }
+> {% client.global.set("vendedor_token", response.body); %}
 
+###
 
-### ===================================================
-### PASSO 5: Criar um Produto (Autenticado como VENDEDOR)
-### ===================================================
-# Agora usamos o token do VENDEDOR para nos autenticarmos e criar um produto.
-# **IMPORTANTE:** Substitua 'seu_token_de_vendedor_aqui' pelo token que você copiou.
-# Use os IDs do VENDEDOR e da CATEGORIA que você anotou.
-POST http://localhost:8080/produtos
+# 2.2 - Login COMPRADOR
+POST {{baseUrl}}/login
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXJrZXRwbGFjZS1hcGkiLCJzdWIiOiJ2ZW5kZWRvckBlbWFpbC5jb20iLCJpYXQiOjE3NTE4NjAwMjQsImV4cCI6MTc1MTg2NzIyNH0.kVfqzTAU0OQRwQwfDFYVUh5RbLAh0LMPVpGzrEjGP58
+
+{
+  "email": "comprador@email.com",
+  "senha": "senha_comprador"
+}
+> {% client.global.set("comprador_token", response.body); %}
+
+###
+
+# 2.3 - Login ADMINISTRADOR
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "admin@email.com",
+  "senha": "senha_admin"
+}
+> {% client.global.set("admin_token", response.body); %}
+
+###
+
+# =================================================================
+# ETAPA 3: FLUXO DO VENDEDOR
+# =================================================================
+
+# 3.1 - Criar uma Categoria
+POST {{baseUrl}}/categorias
+Content-Type: application/json
+Authorization: Bearer {{vendedor_token}}
+
+{
+  "nome": "Smartphones",
+  "descricao": "Celulares e smartphones de última geração"
+}
+
+###
+
+# 3.2 - Criar um Produto
+POST {{baseUrl}}/produtos
+Content-Type: application/json
+Authorization: Bearer {{vendedor_token}}
 
 {
   "nome": "SuperPhone Pro Max",
@@ -82,30 +122,28 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXJrZXRwbGFjZS1hcGkiLCJzd
   "vendedorId": 1
 }
 
+###
 
-### ===================================================
-### PASSO 6: Fazer Login como COMPRADOR para obter um Token
-### ===================================================
-# Agora, o comprador faz login para realizar a compra.
-# COPIE este novo token, que pertence ao comprador.
-POST http://localhost:8080/login
+# =================================================================
+# ETAPA 4: FLUXO DO COMPRADOR
+# =================================================================
+
+# 4.1 - Atualizar o próprio perfil (ID 2 do comprador)
+PUT {{baseUrl}}/usuarios/2
 Content-Type: application/json
+Authorization: Bearer {{comprador_token}}
 
 {
-  "email": "comprador@email.com",
-  "senha": "senha_comprador"
+  "nome": "Fulano da Silva Santos",
+  "telefone": "22987654321"
 }
 
+###
 
-### ===================================================
-### PASSO 7: Criar um Pedido (Autenticado como COMPRADOR)
-### ===================================================
-# O comprador, usando seu próprio token, cria um pedido.
-# **IMPORTANTE:** Substitua 'seu_token_de_comprador_aqui' pelo token novo.
-# Use o ID do COMPRADOR e o ID do PRODUTO que você anotou.
-POST http://localhost:8080/pedidos
+# 4.2 - Criar um Pedido
+POST {{baseUrl}}/pedidos
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXJrZXRwbGFjZS1hcGkiLCJzdWIiOiJ2ZW5kZWRvckBlbWFpbC5jb20iLCJpYXQiOjE3NTE4NjA2MDMsImV4cCI6MTc1MTg2NzgwM30.LMWfIYi3s4Gu9sGmU3-3eDTrbPLT5a7fRwxFPUFKQXc
+Authorization: Bearer {{comprador_token}}
 
 {
   "compradorId": 2,
@@ -117,16 +155,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXJrZXRwbGFjZS1hcGkiLCJzd
   ]
 }
 
+###
 
-### ===================================================
-### PASSO 8: Criar uma Avaliação (Autenticado como COMPRADOR)
-### ===================================================
-# Por fim, o comprador avalia o pedido que acabou de fazer.
-# **IMPORTANTE:** Use o mesmo token de comprador.
-# Use o ID do PEDIDO que foi retornado no passo anterior e o ID do COMPRADOR.
-POST http://localhost:8080/avaliacoes
+# 4.3 - Criar uma Avaliação
+POST {{baseUrl}}/avaliacoes
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXJrZXRwbGFjZS1hcGkiLCJzdWIiOiJ2ZW5kZWRvckBlbWFpbC5jb20iLCJpYXQiOjE3NTE4NjA2MDMsImV4cCI6MTc1MTg2NzgwM30.LMWfIYi3s4Gu9sGmU3-3eDTrbPLT5a7fRwxFPUFKQXc
+Authorization: Bearer {{comprador_token}}
 
 {
   "pedidoId": 1,
@@ -134,3 +168,55 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXJrZXRwbGFjZS1hcGkiLCJzd
   "nota": 5,
   "comentario": "Chegou muito rápido, produto excelente!"
 }
+
+###
+
+# =================================================================
+# ETAPA 5: TESTES DE SEGURANÇA DO ADMIN
+# =================================================================
+
+# 5.1 - Acessar rota de admin como COMPRADOR (DEVE FALHAR COM 403)
+GET {{baseUrl}}/usuarios/admin/todos
+Authorization: Bearer {{comprador_token}}
+
+###
+
+# 5.2 - Acessar rota de admin como ADMIN (DEVE FUNCIONAR COM 200)
+GET {{baseUrl}}/usuarios/admin/todos
+Authorization: Bearer {{admin_token}}
+
+###
+
+### =================================================================
+### ETAPA 6: FLUXO DE RECUPERAÇÃO DE SENHA
+### =================================================================
+
+### 6.1 - Solicitar o token de recuperação
+POST {{baseUrl}}/usuarios/forgot-password
+Content-Type: application/json
+
+{
+  "email": "comprador@email.com"
+}
+
+> {%
+    let responseBody = response.body;
+    let token = responseBody.substring(responseBody.indexOf(':') + 2);
+    client.global.set("reset_token", token);
+%}
+
+###
+
+### 6.2 - Efetuar o reset da senha
+# Usamos o token que pegamos no passo anterior e definimos uma nova senha.
+# Se funcionar, a resposta deve ser 200 OK com uma mensagem de sucesso.
+POST {{baseUrl}}/usuarios/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{reset_token}}",
+  "novaSenha": "nova_senha_123"
+}
+
+###
+
