@@ -220,3 +220,60 @@ Content-Type: application/json
 
 ###
 
+### =================================================================
+### ETAPA 7: TESTES DE EDIÇÃO DE PRODUTO
+### =================================================================
+
+### 7.1 - Tentar editar produto de outro usuário (DEVE FALHAR)
+# Logados como COMPRADOR, vamos tentar editar o produto (ID 1)
+# que pertence ao VENDEDOR.
+# A resposta esperada é um erro.
+PUT {{baseUrl}}/produtos/1
+Content-Type: application/json
+Authorization: Bearer {{comprador_token}}
+
+{
+  "nome": "Produto Editado por Intruso",
+  "descricao": "Tentando hackear o sistema.",
+  "preco": 1.00,
+  "estoque": 1
+}
+
+###
+
+### 7.2 - Editar o próprio produto (DEVE FUNCIONAR)
+# Agora, logados como VENDEDOR (o dono), vamos editar o mesmo produto (ID 1).
+# A resposta esperada é 200 OK com os dados do produto atualizado.
+PUT {{baseUrl}}/produtos/1
+Content-Type: application/json
+Authorization: Bearer {{vendedor_token}}
+
+{
+  "nome": "SuperPhone Pro Max 2.0",
+  "descricao": "A nova versão, agora com mais bateria!",
+  "preco": 4750.00,
+  "estoque": 49
+}
+
+###
+
+### =================================================================
+### ETAPA 8: TESTES DE DELEÇÃO DE PRODUTO
+### =================================================================
+
+### 8.1 - Tentar deletar produto de outro usuário (DEVE FALHAR)
+# Logados como COMPRADOR, vamos tentar deletar o produto (ID 1) do VENDEDOR.
+# A resposta esperada é um erro (provavelmente 500 ou 403).
+DELETE {{baseUrl}}/produtos/1
+Authorization: Bearer {{comprador_token}}
+
+###
+
+### 8.2 - Deletar o próprio produto (DEVE FUNCIONAR)
+# Agora, logados como VENDEDOR (o dono), vamos deletar o mesmo produto (ID 1).
+# A resposta esperada é 204 No Content (sucesso, sem corpo de resposta).
+DELETE {{baseUrl}}/produtos/1
+Authorization: Bearer {{vendedor_token}}
+
+###
+
