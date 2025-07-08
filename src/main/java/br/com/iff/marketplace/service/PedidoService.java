@@ -9,13 +9,13 @@ import br.com.iff.marketplace.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.security.core.context.SecurityContextHolder;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors; // Importe o Collectors
+import java.util.stream.Collectors;
 
 @Service
 public class PedidoService {
@@ -78,5 +78,29 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
         return new PedidoResponseDTO(pedido);
+    }
+
+    @Transactional
+    public Pedido atualizarStatusPedido(Long id, StatusPedido novoStatus) {
+        // log.info("SERVICE: Recebida requisição para atualizar status do pedido ID {} para {}", id, novoStatus);
+
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // log.info("SERVICE: Usuário logado: ID {}", usuarioLogado.getId());
+
+        Pedido pedidoEncontrado = pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
+
+        boolean isVendedorDoPedido = pedidoEncontrado.getItens().stream()
+                .anyMatch(item -> item.getProduto().getVendedor().getId().equals(usuarioLogado.getId()));
+
+        if (!isVendedorDoPedido) {
+            // log.warn("SERVICE: ACESSO NEGADO! Usuário {} tentou mudar status de um pedido no qual não é vendedor.", usuarioLogado.getId());
+            throw new RuntimeException("Acesso negado: Você não é o vendedor de nenhum item neste pedido.");
+        }
+
+        // log.info("SERVICE: Acesso permitido. Alterando status do pedido ID {} para {}", id, novoStatus);
+        pedidoEncontrado.setStatus(novoStatus);
+
+        return pedidoRepository.save(pedidoEncontrado);
     }
 }

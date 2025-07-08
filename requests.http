@@ -367,3 +367,60 @@ GET {{baseUrl}}/produtos?nome=Fone&categoriaId=2
 # Buscar por Categoria 99, que não existe.
 # Deve retornar uma lista vazia [].
 GET {{baseUrl}}/produtos?categoriaId=99
+
+###
+
+### =================================================================
+### ETAPA 11: TESTES DE ATUALIZAÇÃO DE STATUS DE PEDIDO
+### =================================================================
+
+### 11.1 - SETUP: Criar um segundo Vendedor ("O Penetra")
+POST {{baseUrl}}/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Loja da Esquina",
+  "email": "vendedor2@email.com",
+  "senha": "senha_vendedor2",
+  "telefone": "11955554444",
+  "documento": "44555666000177",
+  "perfil": "VENDEDOR"
+}
+
+###
+
+### 11.2 - SETUP: Login do Vendedor 2
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "vendedor2@email.com",
+  "senha": "senha_vendedor2"
+}
+> {% client.global.set("vendedor2_token", response.body); %}
+
+###
+
+### 11.3 - TESTE: Tentar atualizar status de pedido alheio (DEVE FALHAR)
+# Logados como Vendedor 2, vamos tentar mudar o status do Pedido 1 (que é do Vendedor 1).
+# A resposta esperada é um erro (403 ou 500).
+PATCH {{baseUrl}}/pedidos/1/status
+Authorization: Bearer {{vendedor2_token}}
+Content-Type: application/json
+
+{
+  "status": "ENVIADO"
+}
+
+###
+
+### 11.4 - TESTE: Vendedor certo atualizando o status (DEVE FUNCIONAR)
+# Agora, logados como VENDEDOR 1 (o dono do produto no pedido), vamos mudar o status.
+# A resposta esperada é 200 OK com o pedido mostrando o status "ENVIADO".
+PATCH {{baseUrl}}/pedidos/1/status
+Authorization: Bearer {{vendedor_token}}
+Content-Type: application/json
+
+{
+  "status": "ENVIADO"
+}

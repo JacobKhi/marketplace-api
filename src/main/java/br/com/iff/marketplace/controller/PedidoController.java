@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import br.com.iff.marketplace.model.enums.StatusPedido;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/pedidos")
@@ -30,5 +32,17 @@ public class PedidoController {
     @GetMapping("/{id}")
     public ResponseEntity<PedidoResponseDTO> buscarPedidoPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
+    }
+
+    // Endpoint para ATUALIZAR O STATUS de um pedido
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<PedidoResponseDTO> atualizarStatusPedido(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        StatusPedido novoStatus = StatusPedido.valueOf(body.get("status").toUpperCase());
+
+        Pedido pedidoAtualizado = service.atualizarStatusPedido(id, novoStatus);
+        return ResponseEntity.ok(new PedidoResponseDTO(pedidoAtualizado));
     }
 }
