@@ -304,3 +304,66 @@ GET {{baseUrl}}/produtos?nome=Tablet
 
 ###
 
+### =================================================================
+### ETAPA 10: TESTES DA BUSCA AVANÇADA DE PRODUTOS
+### =================================================================
+
+### 10.1 - SETUP: Criar uma segunda Categoria (Eletrônicos)
+# ID retornado provavelmente será '2'
+POST {{baseUrl}}/categorias
+Content-Type: application/json
+Authorization: Bearer {{vendedor_token}}
+
+{
+  "nome": "Eletrônicos",
+  "descricao": "Diversos eletrônicos para o dia a dia"
+}
+
+###
+
+### 10.2 - SETUP: Criar um segundo Produto (Fone de Ouvido)
+# Note que este produto tem ID 2, categoriaId 2 e preço 250.00
+POST {{baseUrl}}/produtos
+Content-Type: application/json
+Authorization: Bearer {{vendedor_token}}
+
+{
+  "nome": "Super Fone de Ouvido",
+  "descricao": "Fone de ouvido sem fio com cancelamento de ruído.",
+  "preco": 250.00,
+  "estoque": 100,
+  "categoriaId": 2,
+  "vendedorId": 1
+}
+
+###
+
+### 10.3 - TESTE: Buscar SÓ pela Categoria "Smartphones" (ID 1)
+# Deve retornar apenas o "SuperPhone Pro Max"
+GET {{baseUrl}}/produtos?categoriaId=1
+
+###
+
+### 10.4 - TESTE: Buscar por Faixa de Preço (abaixo de 300)
+# Deve retornar apenas o "Super Fone de Ouvido"
+GET {{baseUrl}}/produtos?precoMax=300
+
+###
+
+### 10.5 - TESTE: Buscar por Faixa de Preço (acima de 4000)
+# Deve retornar apenas o "SuperPhone Pro Max"
+GET {{baseUrl}}/produtos?precoMin=4000
+
+###
+
+### 10.6 - TESTE: Combinar filtros (Nome e Categoria)
+# Buscar por nome "Fone" na categoria de "Eletrônicos" (ID 2)
+# Deve retornar apenas o "Super Fone de Ouvido"
+GET {{baseUrl}}/produtos?nome=Fone&categoriaId=2
+
+###
+
+### 10.7 - TESTE: Filtro sem resultados
+# Buscar por Categoria 99, que não existe.
+# Deve retornar uma lista vazia [].
+GET {{baseUrl}}/produtos?categoriaId=99

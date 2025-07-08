@@ -8,10 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import br.com.iff.marketplace.controller.dto.ProdutoResponseDTO;
-
-import lombok.extern.slf4j.Slf4j; // <-- IMPORT NOVO
-import org.slf4j.Logger;         // <-- IMPORT NOVO
-import org.slf4j.LoggerFactory; // <-- IMPORT NOVO
+import java.math.BigDecimal;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/produtos")
@@ -29,9 +29,12 @@ public class ProdutoController {
 
     @GetMapping
     public ResponseEntity<List<ProdutoResponseDTO>> listarProdutos(
-            @RequestParam(value = "nome", required = false) String nome) {
+            @RequestParam(value = "nome", required = false) String nome,
+            @RequestParam(value = "categoriaId", required = false) Long categoriaId,
+            @RequestParam(value = "precoMin", required = false) BigDecimal precoMin,
+            @RequestParam(value = "precoMax", required = false) BigDecimal precoMax) {
 
-        List<ProdutoResponseDTO> produtos = service.listarProdutos(nome);
+        List<ProdutoResponseDTO> produtos = service.listarProdutos(nome, categoriaId, precoMin, precoMax);
         return ResponseEntity.ok(produtos);
     }
 

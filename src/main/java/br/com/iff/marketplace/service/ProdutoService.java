@@ -14,9 +14,9 @@ import java.util.List;
 import br.com.iff.marketplace.controller.dto.ProdutoResponseDTO;
 import java.util.stream.Collectors;
 import org.springframework.security.core.context.SecurityContextHolder;
-import br.com.iff.marketplace.model.Usuario;
 import org.springframework.data.jpa.domain.Specification;
 import br.com.iff.marketplace.repository.specifications.ProdutoSpecification;
+import java.math.BigDecimal;
 
 @Service
 @Slf4j
@@ -93,11 +93,19 @@ public class ProdutoService {
         log.debug("SERVICE: Produto ID {} deletado com sucesso pelo dono.", id);
     }
 
-    public List<ProdutoResponseDTO> listarProdutos(String nome) {
+    public List<ProdutoResponseDTO> listarProdutos(
+            String nome, Long categoriaId, BigDecimal precoMin, BigDecimal precoMax) {
+
         Specification<Produto> spec = (root, query, builder) -> builder.conjunction();
 
         if (nome != null && !nome.isBlank()) {
             spec = spec.and(ProdutoSpecification.comNome(nome));
+        }
+        if (categoriaId != null) {
+            spec = spec.and(ProdutoSpecification.comCategoria(categoriaId));
+        }
+        if (precoMin != null || precoMax != null) {
+            spec = spec.and(ProdutoSpecification.comPrecoEntre(precoMin, precoMax));
         }
 
         List<Produto> produtos = produtoRepository.findAll(spec);
