@@ -8,6 +8,7 @@ import br.com.iff.marketplace.repository.AvaliacaoRepository;
 import br.com.iff.marketplace.repository.PedidoRepository;
 import br.com.iff.marketplace.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import br.com.iff.marketplace.exception.NotFoundException;
@@ -49,6 +50,28 @@ public class AvaliacaoService {
         avaliacao.setDataAvaliacao(LocalDateTime.now());
         avaliacao.setPedido(pedido);
         avaliacao.setAvaliador(avaliador);
+
+        return avaliacaoRepository.save(avaliacao);
+    }
+
+    @Transactional
+    public Avaliacao adicionarResposta(Long avaliacaoId, String resposta) {
+
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Avaliacao avaliacao = avaliacaoRepository.findById(avaliacaoId)
+                .orElseThrow(() -> new RuntimeException("Avaliação não encontrada!"));
+
+        Pedido pedidoDaAvaliacao = avaliacao.getPedido();
+
+        Usuario vendedorDoPedido = pedidoDaAvaliacao.getItens().get(0).getProduto().getVendedor();
+
+        if (!vendedorDoPedido.getId().equals(usuarioLogado.getId())) {
+            throw new RuntimeException("Acesso negado: Você só pode responder avaliações de seus próprios produtos.");
+        }
+
+        avaliacao.setRespostaVendedor(resposta);
+        avaliacao.setDataResposta(LocalDateTime.now());
 
         return avaliacaoRepository.save(avaliacao);
     }

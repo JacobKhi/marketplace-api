@@ -22,6 +22,11 @@ public class Avaliacao {
 
     private LocalDateTime dataAvaliacao;
 
+    @Column(length = 1000)
+    private String respostaVendedor;
+
+    private LocalDateTime dataResposta;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id", unique = true)
     private Pedido pedido;
@@ -29,4 +34,5 @@ public class Avaliacao {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "avaliador_id")
     private Usuario avaliador;
+
 }

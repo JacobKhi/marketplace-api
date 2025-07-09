@@ -13,6 +13,8 @@ public class AvaliacaoResponseDTO {
     private LocalDateTime dataAvaliacao;
     private String nomeAvaliador;
     private String numeroDoPedido;
+    private String respostaVendedor;
+    private LocalDateTime dataResposta;
 
     public AvaliacaoResponseDTO(Avaliacao avaliacao) {
         this.id = avaliacao.getId();
@@ -21,5 +23,7 @@ public class AvaliacaoResponseDTO {
         this.dataAvaliacao = avaliacao.getDataAvaliacao();
         this.nomeAvaliador = avaliacao.getAvaliador().getNome();
         this.numeroDoPedido = avaliacao.getPedido().getNumeroPedido();
+        this.respostaVendedor = avaliacao.getRespostaVendedor();
+        this.dataResposta = avaliacao.getDataResposta();
     }
 }

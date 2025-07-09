@@ -1,12 +1,16 @@
+# Para evitar bugs em alguns editores, sempre deixe uma linha em branco
+# antes de linhas que começam com @, como a linha abaixo.
+
 @baseUrl = http://localhost:8080
 
-###
 
+###
 # =================================================================
 # ETAPA 1: CADASTRO DOS USUÁRIOS
 # =================================================================
 
 ### 1.1 - Criar Usuário VENDEDOR
+
 POST {{baseUrl}}/usuarios
 Content-Type: application/json
 
@@ -20,10 +24,10 @@ Content-Type: application/json
 }
 > {% client.global.set("vendedor_id", response.body.id); %}
 
-
 ###
 
 ### 1.2 - Criar Usuário COMPRADOR
+
 POST {{baseUrl}}/usuarios
 Content-Type: application/json
 
@@ -44,6 +48,7 @@ Content-Type: application/json
 # =================================================================
 
 ### 2.1 - Login VENDEDOR
+
 POST {{baseUrl}}/login
 Content-Type: application/json
 
@@ -56,6 +61,7 @@ Content-Type: application/json
 ###
 
 ### 2.2 - Login COMPRADOR
+
 POST {{baseUrl}}/login
 Content-Type: application/json
 
@@ -68,23 +74,25 @@ Content-Type: application/json
 
 ###
 # =================================================================
-# ETAPA 3: FLUXO DE CRIAÇÃO (Produto Base e Variações)
+# ETAPA 3: VENDEDOR CRIA PRODUTO E VARIAÇÕES
 # =================================================================
 
 ### 3.1 - Criar uma Categoria
+
 POST {{baseUrl}}/categorias
 Content-Type: application/json
 Authorization: Bearer {{vendedor_token}}
 
 {
-  "nome": "Camisetas",
-  "descricao": "Camisetas de algodão para o dia a dia"
+  "nome": "Roupas",
+  "descricao": "Vestuário em geral"
 }
 > {% client.global.set("categoria_id", response.body.id); %}
 
 ###
 
 ### 3.2 - Criar um Produto BASE
+
 POST {{baseUrl}}/produtos
 Content-Type: application/json
 Authorization: Bearer {{vendedor_token}}
@@ -98,10 +106,10 @@ Authorization: Bearer {{vendedor_token}}
 }
 > {% client.global.set("produto_id", response.body.id); %}
 
-
 ###
 
 ### 3.3 - Adicionar Variação ao Produto
+
 POST {{baseUrl}}/produtos/{{produto_id}}/variacoes
 Content-Type: application/json
 Authorization: Bearer {{vendedor_token}}
@@ -117,10 +125,11 @@ Authorization: Bearer {{vendedor_token}}
 
 ###
 # =================================================================
-# ETAPA 4: FLUXO DE COMPRA
+# ETAPA 4: COMPRADOR CRIA PEDIDO E AVALIAÇÃO
 # =================================================================
 
-### 4.1 - Criar um Pedido com uma Variação Específica
+### 4.1 - Criar um Pedido com a Variação
+
 POST {{baseUrl}}/pedidos
 Content-Type: application/json
 Authorization: Bearer {{comprador_token}}
@@ -133,4 +142,38 @@ Authorization: Bearer {{comprador_token}}
       "quantidade": 1
     }
   ]
+}
+> {% client.global.set("pedido_id", response.body.numeroPedido); %}
+
+###
+
+### 4.2 - Criar Avaliação para o Pedido
+# Assumindo que o ID do Pedido criado é 1
+
+POST {{baseUrl}}/avaliacoes
+Content-Type: application/json
+Authorization: Bearer {{comprador_token}}
+
+{
+  "pedidoId": 1,
+  "avaliadorId": {{comprador_id}},
+  "nota": 5,
+  "comentario": "Produto chegou rápido!"
+}
+> {% client.global.set("avaliacao_id", response.body.id); %}
+
+
+###
+# =================================================================
+# ETAPA 5: VENDEDOR RESPONDE A AVALIAÇÃO (TESTE FINAL)
+# =================================================================
+
+### 5.1 - Vendedor responde à avaliação criada
+# Deve retornar 200 OK com a resposta preenchida
+POST {{baseUrl}}/avaliacoes/{{avaliacao_id}}/responder
+Content-Type: application/json
+Authorization: Bearer {{vendedor_token}}
+
+{
+  "resposta": "Nós que agradecemos a preferência! Volte sempre."
 }
