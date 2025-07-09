@@ -63,4 +63,13 @@ public class UsuarioController {
         List<Usuario> usuarios = service.listarUsuarios();
         return ResponseEntity.ok(usuarios);
     }
+
+    // Endpoint para o ADMIN deletar qualquer usuário
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
+        service.deletarUsuario(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

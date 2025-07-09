@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -16,6 +18,8 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
+@SQLDelete(sql = "UPDATE usuario SET ativo = false WHERE id = ?")
+@Where(clause = "ativo = true")
 public class Usuario implements UserDetails {
 
     @Id
@@ -32,6 +36,8 @@ public class Usuario implements UserDetails {
 
     private String documento; // CPF ou CNPJ
 
+    private boolean ativo = true;
+
     @Enumerated(EnumType.STRING)
     private PerfilUsuario perfil;
 
@@ -43,6 +49,9 @@ public class Usuario implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + perfil.name()));
     }
+
+    @Override
+    public boolean isEnabled() {return this.ativo;}
 
     @Override
     public String getPassword() {
@@ -66,11 +75,6 @@ public class Usuario implements UserDetails {
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
         return true;
     }
 

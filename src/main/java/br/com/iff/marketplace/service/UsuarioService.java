@@ -71,7 +71,15 @@ public class UsuarioService {
         return repository.save(usuarioEncontrado);
     }
 
+    public void deletarUsuario(Long id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Usuário não encontrado com o ID: " + id);
+        }
+        repository.deleteById(id);
+    }
+
     public List<Usuario> listarUsuarios() {
         return repository.findAll();
     }
+
 }
