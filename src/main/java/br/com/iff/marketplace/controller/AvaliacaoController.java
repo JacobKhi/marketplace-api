@@ -4,17 +4,17 @@ import br.com.iff.marketplace.controller.dto.AvaliacaoRequestDTO;
 import br.com.iff.marketplace.controller.dto.AvaliacaoResponseDTO;
 import br.com.iff.marketplace.model.Avaliacao;
 import br.com.iff.marketplace.service.AvaliacaoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/avaliacoes")
+@RequiredArgsConstructor
 public class AvaliacaoController {
 
-    @Autowired
-    private AvaliacaoService service;
+    private final AvaliacaoService service;
 
     @PostMapping
     public ResponseEntity<AvaliacaoResponseDTO> criarAvaliacao(@RequestBody AvaliacaoRequestDTO dto) {

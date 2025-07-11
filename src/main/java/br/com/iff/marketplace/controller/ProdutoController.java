@@ -4,15 +4,13 @@ import br.com.iff.marketplace.controller.dto.ProdutoRequestDTO;
 import br.com.iff.marketplace.controller.dto.VariacaoResponseDTO;
 import br.com.iff.marketplace.model.Produto;
 import br.com.iff.marketplace.service.ProdutoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import br.com.iff.marketplace.controller.dto.ProdutoResponseDTO;
 import java.math.BigDecimal;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import br.com.iff.marketplace.model.VariacaoProduto;
 import br.com.iff.marketplace.controller.dto.VariacaoRequestDTO;
@@ -20,10 +18,10 @@ import br.com.iff.marketplace.controller.dto.VariacaoRequestDTO;
 @RestController
 @RequestMapping("/produtos")
 @Slf4j
+@RequiredArgsConstructor
 public class ProdutoController {
 
-    @Autowired
-    private ProdutoService service;
+    private final ProdutoService service;
 
     @PostMapping
     public ResponseEntity<Produto> cadastrarProduto(@RequestBody ProdutoRequestDTO produtoDTO) {

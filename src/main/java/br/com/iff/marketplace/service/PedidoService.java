@@ -6,7 +6,7 @@ import br.com.iff.marketplace.controller.dto.ItemPedidoRequestDTO;
 import br.com.iff.marketplace.model.*;
 import br.com.iff.marketplace.model.enums.StatusPedido;
 import br.com.iff.marketplace.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,16 +18,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PedidoService {
 
-    @Autowired
-    private PedidoRepository pedidoRepository;
-    @Autowired
-    private ProdutoRepository produtoRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private VariacaoProdutoRepository variacaoProdutoRepository;
+    private final PedidoRepository pedidoRepository;
+
+    private final ProdutoRepository produtoRepository;
+
+    private final UsuarioRepository usuarioRepository;
+
+    private final VariacaoProdutoRepository variacaoProdutoRepository;
 
 
     public List<PedidoResponseDTO> listarPedidos() {

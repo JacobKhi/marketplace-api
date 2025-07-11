@@ -4,7 +4,7 @@ import br.com.iff.marketplace.controller.dto.PedidoRequestDTO;
 import br.com.iff.marketplace.controller.dto.PedidoResponseDTO;
 import br.com.iff.marketplace.model.Pedido;
 import br.com.iff.marketplace.service.PedidoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -13,10 +13,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/pedidos")
+@RequiredArgsConstructor
 public class PedidoController {
 
-    @Autowired
-    private PedidoService service;
+    private final PedidoService service;
 
     @PostMapping
     public ResponseEntity<PedidoResponseDTO> criarPedido(@RequestBody PedidoRequestDTO pedidoDTO) {

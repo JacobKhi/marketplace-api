@@ -1,6 +1,5 @@
 package br.com.iff.marketplace.controller.dto;
 
-import java.math.BigDecimal;
 import lombok.Data;
 
 @Data

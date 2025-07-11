@@ -28,19 +28,16 @@ public class ProdutoSpecification {
     }
 
     public static Specification<Produto> comPrecoEntre(BigDecimal precoMin, BigDecimal precoMax) {
-        if (precoMin == null && precoMax == null) {
-            return null;
+        if (precoMin != null && precoMax != null) {
+            return (root, query, builder) -> builder.between(root.get("preco"), precoMin, precoMax);
         }
-
-        if (precoMin != null && precoMax == null) {
+        if (precoMin != null) {
             return (root, query, builder) -> builder.greaterThanOrEqualTo(root.get("preco"), precoMin);
         }
-
-        if (precoMin == null && precoMax != null) {
+        if (precoMax != null) {
             return (root, query, builder) -> builder.lessThanOrEqualTo(root.get("preco"), precoMax);
         }
-
-        return (root, query, builder) -> builder.between(root.get("preco"), precoMin, precoMax);
+        return null;
     }
 
 }

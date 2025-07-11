@@ -2,7 +2,7 @@ package br.com.iff.marketplace.controller;
 
 import br.com.iff.marketplace.model.Usuario;
 import br.com.iff.marketplace.service.UsuarioService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -11,10 +11,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/usuarios") // A URL base agora é /usuarios
+@RequiredArgsConstructor
 public class UsuarioController {
 
-    @Autowired
-    private UsuarioService service;
+    private final UsuarioService service;
 
     // Endpoint para CADASTRAR um novo usuário
     @PostMapping

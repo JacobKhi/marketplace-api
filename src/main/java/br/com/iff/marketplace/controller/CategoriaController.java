@@ -2,17 +2,17 @@ package br.com.iff.marketplace.controller;
 
 import br.com.iff.marketplace.model.Categoria;
 import br.com.iff.marketplace.service.CategoriaService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/categorias")
+@RequiredArgsConstructor
 public class CategoriaController {
 
-    @Autowired
-    private CategoriaService service;
+    private final CategoriaService service;
 
     // Endpoint para CADASTRAR uma nova categoria
     @PostMapping

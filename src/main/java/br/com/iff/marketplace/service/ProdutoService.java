@@ -10,8 +10,8 @@ import br.com.iff.marketplace.repository.CategoriaRepository;
 import br.com.iff.marketplace.repository.ProdutoRepository;
 import br.com.iff.marketplace.repository.UsuarioRepository;
 import br.com.iff.marketplace.repository.VariacaoProdutoRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import br.com.iff.marketplace.controller.dto.ProdutoResponseDTO;
@@ -23,19 +23,16 @@ import java.math.BigDecimal;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ProdutoService {
 
-    @Autowired
-    private ProdutoRepository produtoRepository;
+    private final ProdutoRepository produtoRepository;
 
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    private final CategoriaRepository categoriaRepository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private VariacaoProdutoRepository variacaoProdutoRepository;
+    private final VariacaoProdutoRepository variacaoProdutoRepository;
 
     public Produto salvarProduto(ProdutoRequestDTO dto) {
         Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())

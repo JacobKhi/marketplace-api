@@ -2,10 +2,8 @@ package br.com.iff.marketplace.service;
 
 import br.com.iff.marketplace.model.Usuario;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import javax.crypto.SecretKey;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
@@ -24,15 +22,14 @@ public class TokenService {
         try {
             SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
-            String token = Jwts.builder()
-                    .setIssuer("marketplace-api")
-                    .setSubject(usuario.getEmail())
-                    .setIssuedAt(new Date())
-                    .setExpiration(Date.from(genExpirationDate()))
-                    .signWith(secretKey, SignatureAlgorithm.HS256)
+            return Jwts.builder()
+                    .issuer("marketplace-api")
+                    .subject(usuario.getEmail())
+                    .issuedAt(Date.from(Instant.now()))
+                    .expiration(Date.from(genExpirationDate()))
+                    .signWith(secretKey)
                     .compact();
 
-            return token;
         } catch (Exception exception){
             throw new RuntimeException("Erro ao gerar o token JWT", exception);
         }
@@ -48,6 +45,7 @@ public class TokenService {
                     .parseSignedClaims(token)
                     .getPayload()
                     .getSubject();
+
         } catch (Exception e) {
             return null;
         }

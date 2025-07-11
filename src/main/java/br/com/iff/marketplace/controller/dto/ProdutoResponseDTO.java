@@ -2,7 +2,6 @@ package br.com.iff.marketplace.controller.dto;
 
 import br.com.iff.marketplace.model.Produto;
 import lombok.Data;
-import java.math.BigDecimal; // Remova este se não for usado em outro lugar
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -2,15 +2,15 @@ package br.com.iff.marketplace.service;
 
 import br.com.iff.marketplace.model.Categoria;
 import br.com.iff.marketplace.repository.CategoriaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CategoriaService {
 
-    @Autowired
-    private CategoriaRepository repository;
+    private final CategoriaRepository repository;
 
     public Categoria salvarCategoria(Categoria categoria) {
         // Por enquanto, a lógica é simples: apenas salvar.

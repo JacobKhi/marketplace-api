@@ -7,7 +7,7 @@ import br.com.iff.marketplace.model.Usuario;
 import br.com.iff.marketplace.repository.AvaliacaoRepository;
 import br.com.iff.marketplace.repository.PedidoRepository;
 import br.com.iff.marketplace.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,16 +16,14 @@ import br.com.iff.marketplace.exception.NotFoundException;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class AvaliacaoService {
 
-    @Autowired
-    private AvaliacaoRepository avaliacaoRepository;
+    private final AvaliacaoRepository avaliacaoRepository;
 
-    @Autowired
-    private PedidoRepository pedidoRepository;
+    private final PedidoRepository pedidoRepository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
 
     @Transactional
     public Avaliacao criarAvaliacao(AvaliacaoRequestDTO dto) {
@@ -64,7 +62,7 @@ public class AvaliacaoService {
 
         Pedido pedidoDaAvaliacao = avaliacao.getPedido();
 
-        Usuario vendedorDoPedido = pedidoDaAvaliacao.getItens().get(0).getProduto().getVendedor();
+        Usuario vendedorDoPedido = pedidoDaAvaliacao.getItens().getFirst().getProduto().getVendedor();
 
         if (!vendedorDoPedido.getId().equals(usuarioLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode responder avaliações de seus próprios produtos.");

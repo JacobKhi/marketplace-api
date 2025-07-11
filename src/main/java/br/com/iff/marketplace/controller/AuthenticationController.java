@@ -3,7 +3,7 @@ package br.com.iff.marketplace.controller;
 import br.com.iff.marketplace.controller.dto.LoginDTO;
 import br.com.iff.marketplace.model.Usuario;
 import br.com.iff.marketplace.service.TokenService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,13 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/login")
+@RequiredArgsConstructor
 public class AuthenticationController {
 
-    @Autowired
-    private AuthenticationManager manager;
+    private final AuthenticationManager manager;
 
-    @Autowired
-    private TokenService tokenService;
+    private final TokenService tokenService;
 
     @PostMapping
     public ResponseEntity<String> login(@RequestBody LoginDTO dados) {
