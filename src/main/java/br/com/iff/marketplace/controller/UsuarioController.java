@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/usuarios") // A URL base agora é /usuarios
+@RequestMapping("/usuarios")
 @RequiredArgsConstructor
 public class UsuarioController {
 
@@ -72,4 +72,11 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    // Endpoint para o ADMIN suspender ou reativar um usuário
+    @PatchMapping("/{id}/ativacao")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> alterarStatusAtivo(@PathVariable Long id) {
+        service.alterarStatusAtivo(id);
+        return ResponseEntity.ok().build();
+    }
 }

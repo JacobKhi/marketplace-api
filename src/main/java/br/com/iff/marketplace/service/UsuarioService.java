@@ -5,6 +5,7 @@ import br.com.iff.marketplace.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -74,6 +75,17 @@ public class UsuarioService {
             throw new RuntimeException("Usuário não encontrado com o ID: " + id);
         }
         repository.deleteById(id);
+    }
+
+    @Transactional
+    public void alterarStatusAtivo(Long id) {
+        Usuario usuario = repository.findByIdEvenIfInactive(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
+
+        boolean estadoAtual = usuario.isAtivo();
+        usuario.setAtivo(!estadoAtual);
+
+        repository.save(usuario);
     }
 
     public List<Usuario> listarUsuarios() {
