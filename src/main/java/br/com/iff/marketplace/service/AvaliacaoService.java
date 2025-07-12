@@ -12,8 +12,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import br.com.iff.marketplace.exception.NotFoundException;
-
 import java.time.LocalDateTime;
+import br.com.iff.marketplace.controller.dto.AvaliacaoResponseDTO;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -73,4 +75,13 @@ public class AvaliacaoService {
 
         return avaliacaoRepository.save(avaliacao);
     }
+
+    public List<AvaliacaoResponseDTO> listarPorProduto(Long produtoId) {
+        List<Avaliacao> avaliacoes = avaliacaoRepository.findAllByProdutoId(produtoId);
+
+        return avaliacoes.stream()
+                .map(AvaliacaoResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
 }

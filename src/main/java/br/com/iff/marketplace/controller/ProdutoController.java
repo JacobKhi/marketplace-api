@@ -1,19 +1,17 @@
 package br.com.iff.marketplace.controller;
 
-import br.com.iff.marketplace.controller.dto.ProdutoRequestDTO;
-import br.com.iff.marketplace.controller.dto.VariacaoResponseDTO;
+import br.com.iff.marketplace.controller.dto.*;
 import br.com.iff.marketplace.model.Produto;
+import br.com.iff.marketplace.service.AvaliacaoService;
 import br.com.iff.marketplace.service.ProdutoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import br.com.iff.marketplace.controller.dto.ProdutoResponseDTO;
 import java.math.BigDecimal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import br.com.iff.marketplace.model.VariacaoProduto;
-import br.com.iff.marketplace.controller.dto.VariacaoRequestDTO;
 
 @RestController
 @RequestMapping("/produtos")
@@ -22,6 +20,7 @@ import br.com.iff.marketplace.controller.dto.VariacaoRequestDTO;
 public class ProdutoController {
 
     private final ProdutoService service;
+    private final AvaliacaoService avaliacaoService;
 
     @PostMapping
     public ResponseEntity<Produto> cadastrarProduto(@RequestBody ProdutoRequestDTO produtoDTO) {
@@ -62,4 +61,12 @@ public class ProdutoController {
         service.deletarProduto(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Endpoint para LISTAR todas as avaliações de um produto específico
+    @GetMapping("/{produtoId}/avaliacoes")
+    public ResponseEntity<List<AvaliacaoResponseDTO>> listarAvaliacoesDoProduto(@PathVariable Long produtoId) {
+        List<AvaliacaoResponseDTO> avaliacoes = avaliacaoService.listarPorProduto(produtoId);
+        return ResponseEntity.ok(avaliacoes);
+    }
+
 }
