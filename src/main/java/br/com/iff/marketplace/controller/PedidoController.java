@@ -54,4 +54,12 @@ public class PedidoController {
         Pedido pedidoAtualizado = service.adicionarCodigoRastreio(id, codigoRastreio);
         return ResponseEntity.ok(new PedidoResponseDTO(pedidoAtualizado));
     }
+
+    @PostMapping("/checkout")
+    public ResponseEntity<PedidoResponseDTO> checkout() {
+        Pedido novoPedido = service.criarPedidoAPartirDoCarrinho();
+
+        return ResponseEntity.ok(new PedidoResponseDTO(novoPedido));
+    }
+
 }

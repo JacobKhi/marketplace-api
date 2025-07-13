@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import br.com.iff.marketplace.model.CarrinhoDeCompras;
+import br.com.iff.marketplace.model.CarrinhoDeComprasItem;
+import br.com.iff.marketplace.repository.CarrinhoDeComprasRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class PedidoService {
 
     private final VariacaoProdutoRepository variacaoProdutoRepository;
 
+    private final CarrinhoDeComprasRepository carrinhoRepository;
 
     public List<PedidoResponseDTO> listarPedidos() {
         return pedidoRepository.findAll().stream()
@@ -111,6 +115,57 @@ public class PedidoService {
         Pedido pedidoEncontrado = verificaVendedorDoPedido(id);
         pedidoEncontrado.setStatus(novoStatus);
         return pedidoRepository.save(pedidoEncontrado);
+    }
+
+    @Transactional
+    public Pedido criarPedidoAPartirDoCarrinho() {
+        Usuario comprador = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(comprador.getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não possui um carrinho de compras."));
+
+        if (carrinho.getItens() == null || carrinho.getItens().isEmpty()) {
+            throw new RuntimeException("Seu carrinho está vazio!");
+        }
+
+        Pedido pedido = new Pedido();
+        pedido.setComprador(comprador);
+        pedido.setDataPedido(LocalDateTime.now());
+        pedido.setStatus(StatusPedido.PROCESSANDO);
+        pedido.setNumeroPedido(UUID.randomUUID().toString());
+
+        List<ItemPedido> itensPedido = new ArrayList<>();
+        BigDecimal valorTotal = BigDecimal.ZERO;
+
+        for (CarrinhoDeComprasItem itemCarrinho : carrinho.getItens()) {
+            VariacaoProduto variacao = itemCarrinho.getVariacao();
+
+            if (variacao.getEstoque() < itemCarrinho.getQuantidade()) {
+                throw new RuntimeException("Estoque insuficiente para o produto: " + variacao.getNome());
+            }
+
+            ItemPedido itemPedido = new ItemPedido();
+            itemPedido.setProduto(variacao.getProduto());
+            itemPedido.setQuantidade(itemCarrinho.getQuantidade());
+            itemPedido.setPrecoUnitario(variacao.getPreco());
+            itemPedido.setPedido(pedido);
+            itensPedido.add(itemPedido);
+
+            variacao.setEstoque(variacao.getEstoque() - itemCarrinho.getQuantidade());
+            variacaoProdutoRepository.save(variacao);
+
+            valorTotal = valorTotal.add(variacao.getPreco().multiply(new BigDecimal(itemCarrinho.getQuantidade())));
+        }
+
+        pedido.setItens(itensPedido);
+        pedido.setValorTotal(valorTotal);
+
+        Pedido pedidoSalvo = pedidoRepository.save(pedido);
+
+        carrinho.getItens().clear();
+        carrinhoRepository.save(carrinho);
+
+        return pedidoSalvo;
     }
 
 }
