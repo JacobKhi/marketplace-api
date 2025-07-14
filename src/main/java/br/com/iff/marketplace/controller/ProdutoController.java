@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import br.com.iff.marketplace.model.VariacaoProduto;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/produtos")
@@ -69,4 +70,10 @@ public class ProdutoController {
         return ResponseEntity.ok(avaliacoes);
     }
 
+    // ENDPOINT para buscar um produto por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<ProdutoResponseDTO> buscarProdutoPorId(@PathVariable Long id) {
+        Produto produto = service.buscarPorId(id);
+        return ResponseEntity.ok(new ProdutoResponseDTO(produto));
+    }
 }

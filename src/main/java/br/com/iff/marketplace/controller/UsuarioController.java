@@ -8,6 +8,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import br.com.iff.marketplace.controller.dto.UsuarioResponseDTO;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -18,23 +21,25 @@ public class UsuarioController {
 
     // Endpoint para CADASTRAR um novo usuário
     @PostMapping
-    public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioResponseDTO> cadastrarUsuario(@RequestBody Usuario usuario) {
         Usuario novoUsuario = service.salvarUsuario(usuario);
-        return ResponseEntity.ok(novoUsuario);
+        return ResponseEntity.ok(new UsuarioResponseDTO(novoUsuario));
     }
 
     // Endpoint para LISTAR todos os usuários
     @GetMapping
-    public ResponseEntity<List<Usuario>> listarUsuarios() {
-        List<Usuario> usuarios = service.listarUsuarios();
+    public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios() {
+        List<UsuarioResponseDTO> usuarios = service.listarUsuarios().stream()
+                .map(UsuarioResponseDTO::new)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(usuarios);
     }
 
     // Endpoint para ATUALIZAR um usuário existente
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizarUsuario(@PathVariable Long id, @RequestBody Usuario dadosParaAtualizar) {
-        Usuario usuarioAtualizado = service.atualizarUsuario(id, dadosParaAtualizar);
-        return ResponseEntity.ok(usuarioAtualizado);
+    public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
+        Usuario usuarioAtualizado = service.atualizarUsuario(id, usuario);
+        return ResponseEntity.ok(new UsuarioResponseDTO(usuarioAtualizado));
     }
 
     @PostMapping("/forgot-password")
@@ -59,8 +64,11 @@ public class UsuarioController {
     // Endpoint que SÓ o ADMIN pode acessar
     @GetMapping("/admin/todos")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<List<Usuario>> listarTodosParaAdmin() {
-        List<Usuario> usuarios = service.listarUsuarios();
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodosParaAdmin() {
+        // A lógica de conversão para DTO é idêntica
+        List<UsuarioResponseDTO> usuarios = service.listarUsuarios().stream()
+                .map(UsuarioResponseDTO::new)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(usuarios);
     }
 

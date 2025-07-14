@@ -81,6 +81,11 @@ public class ProdutoService {
         produtoRepository.deleteById(id);
     }
 
+    public Produto buscarPorId(Long id) {
+        return produtoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
+    }
+
     public VariacaoProduto adicionarVariacao(Long produtoId, VariacaoRequestDTO variacaoDTO) {
         log.info("SERVICE: Tentando adicionar variação ao produto ID: {}", produtoId);
 

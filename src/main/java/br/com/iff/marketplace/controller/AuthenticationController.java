@@ -23,6 +23,10 @@ public class AuthenticationController {
 
     @PostMapping
     public ResponseEntity<String> login(@RequestBody LoginDTO dados) {
+        System.out.println("============================");
+        System.out.println("Login recebido: " + dados);
+        System.out.println("============================");
+
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.senha());
         var authentication = manager.authenticate(authenticationToken);
 
