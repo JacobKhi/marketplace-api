@@ -26,6 +26,14 @@ public class UsuarioController {
         return ResponseEntity.ok(new UsuarioResponseDTO(novoUsuario));
     }
 
+    // Endpoint para buscar os dados do usuário logado
+    @GetMapping("/me")
+    public ResponseEntity<UsuarioResponseDTO> buscarDadosUsuarioLogado() {
+        Usuario usuarioLogado = service.buscarUsuarioLogado();
+
+        return ResponseEntity.ok(new UsuarioResponseDTO(usuarioLogado));
+    }
+
     // Endpoint para LISTAR todos os usuários
     @GetMapping
     public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios() {

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 @RequiredArgsConstructor
@@ -90,6 +91,10 @@ public class UsuarioService {
 
     public List<Usuario> listarUsuarios() {
         return repository.findAll();
+    }
+
+    public Usuario buscarUsuarioLogado() {
+        return (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
 }
