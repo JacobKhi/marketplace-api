@@ -89,8 +89,12 @@ public class UsuarioService {
         repository.save(usuario);
     }
 
-    public List<Usuario> listarUsuarios() {
-        return repository.findAll();
+    public List<Usuario> listarUsuarios(boolean incluirInativos) {
+        if (incluirInativos) {
+            return repository.findAllEvenIfInactive();
+        } else {
+            return repository.findAll();
+        }
     }
 
     public Usuario buscarUsuarioLogado() {

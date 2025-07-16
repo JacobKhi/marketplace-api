@@ -4,6 +4,7 @@ import br.com.iff.marketplace.controller.dto.PedidoRequestDTO;
 import br.com.iff.marketplace.controller.dto.PedidoResponseDTO;
 import br.com.iff.marketplace.controller.dto.ItemPedidoRequestDTO;
 import br.com.iff.marketplace.model.*;
+import br.com.iff.marketplace.model.enums.PerfilUsuario;
 import br.com.iff.marketplace.model.enums.StatusPedido;
 import br.com.iff.marketplace.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,19 @@ public class PedidoService {
     private final CarrinhoDeComprasRepository carrinhoRepository;
 
     public List<PedidoResponseDTO> listarPedidos() {
-        return pedidoRepository.findAll().stream()
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        List<Pedido> pedidos;
+
+        if (usuarioLogado.getPerfil() == PerfilUsuario.COMPRADOR) {
+            pedidos = pedidoRepository.findByCompradorId(usuarioLogado.getId());
+        } else if (usuarioLogado.getPerfil() == PerfilUsuario.VENDEDOR) {
+            pedidos = pedidoRepository.findByVendedorId(usuarioLogado.getId());
+        } else {
+            pedidos = pedidoRepository.findAll();
+        }
+
+        return pedidos.stream()
                 .map(PedidoResponseDTO::new)
                 .collect(Collectors.toList());
     }

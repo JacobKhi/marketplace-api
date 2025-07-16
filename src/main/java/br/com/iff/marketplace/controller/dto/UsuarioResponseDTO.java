@@ -11,6 +11,7 @@ public class UsuarioResponseDTO {
     private String nome;
     private String email;
     private String telefone;
+    private boolean ativo;
     private PerfilUsuario perfil;
 
     public UsuarioResponseDTO(Usuario usuario) {
@@ -18,6 +19,7 @@ public class UsuarioResponseDTO {
         this.nome = usuario.getNome();
         this.email = usuario.getEmail();
         this.telefone = usuario.getTelefone();
+        this.ativo = usuario.isAtivo();
         this.perfil = usuario.getPerfil();
     }
 }

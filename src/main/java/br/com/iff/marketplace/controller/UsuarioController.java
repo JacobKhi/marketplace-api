@@ -37,7 +37,7 @@ public class UsuarioController {
     // Endpoint para LISTAR todos os usuários
     @GetMapping
     public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios() {
-        List<UsuarioResponseDTO> usuarios = service.listarUsuarios().stream()
+        List<UsuarioResponseDTO> usuarios = service.listarUsuarios(false).stream()
                 .map(UsuarioResponseDTO::new)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(usuarios);
@@ -73,8 +73,7 @@ public class UsuarioController {
     @GetMapping("/admin/todos")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<List<UsuarioResponseDTO>> listarTodosParaAdmin() {
-        // A lógica de conversão para DTO é idêntica
-        List<UsuarioResponseDTO> usuarios = service.listarUsuarios().stream()
+        List<UsuarioResponseDTO> usuarios = service.listarUsuarios(true).stream()
                 .map(UsuarioResponseDTO::new)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(usuarios);
