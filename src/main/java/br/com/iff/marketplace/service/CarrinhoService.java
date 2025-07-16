@@ -12,6 +12,7 @@ import br.com.iff.marketplace.model.VariacaoProduto;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
+import br.com.iff.marketplace.controller.dto.UpdateItemCarrinhoDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -52,5 +53,56 @@ public class CarrinhoService {
         return carrinhoRepository.save(carrinho);
     }
 
+    @Transactional
+    public CarrinhoDeCompras removerItem(Long itemId) {
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(usuarioLogado.getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não possui um carrinho de compras."));
+
+        boolean foiRemovido = carrinho.getItens().removeIf(item -> item.getId().equals(itemId));
+
+        if (!foiRemovido) {
+            throw new RuntimeException("Item não encontrado no carrinho!");
+        }
+
+        return carrinhoRepository.save(carrinho);
+    }
+
+    public CarrinhoDeCompras getMeuCarrinho() {
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return carrinhoRepository.findByUsuarioId(usuarioLogado.getId())
+                .orElseGet(() -> {
+                    CarrinhoDeCompras novoCarrinho = new CarrinhoDeCompras();
+                    novoCarrinho.setUsuario(usuarioLogado);
+                    return carrinhoRepository.save(novoCarrinho);
+                });
+    }
+
+    @Transactional
+    public CarrinhoDeCompras atualizarQuantidadeItem(Long itemId, UpdateItemCarrinhoDTO dto) {
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(usuarioLogado.getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não possui um carrinho de compras."));
+
+        CarrinhoDeComprasItem itemParaAtualizar = carrinho.getItens().stream()
+                .filter(item -> item.getId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Item não encontrado no carrinho!"));
+
+        if (dto.getQuantidade() <= 0) {
+            throw new IllegalArgumentException("A quantidade deve ser maior que zero.");
+        }
+
+        if (itemParaAtualizar.getVariacao().getEstoque() < dto.getQuantidade()) {
+            throw new RuntimeException("Estoque insuficiente. Disponível: " + itemParaAtualizar.getVariacao().getEstoque());
+        }
+
+        itemParaAtualizar.setQuantidade(dto.getQuantidade());
+
+        return carrinhoRepository.save(carrinho);
+    }
 
 }
