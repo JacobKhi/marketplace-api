@@ -170,5 +170,14 @@ public class ProdutoService {
         variacaoProdutoRepository.delete(variacao);
     }
 
+    public List<ProdutoResponseDTO> listarProdutosDoVendedorLogado() {
+        Usuario vendedorLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        List<Produto> produtos = produtoRepository.findByVendedorId(vendedorLogado.getId());
+
+        return produtos.stream()
+                .map(ProdutoResponseDTO::new)
+                .collect(Collectors.toList());
+    }
 
 }

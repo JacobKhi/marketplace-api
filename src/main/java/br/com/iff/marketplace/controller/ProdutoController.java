@@ -6,6 +6,7 @@ import br.com.iff.marketplace.service.AvaliacaoService;
 import br.com.iff.marketplace.service.ProdutoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.math.BigDecimal;
@@ -88,4 +89,11 @@ public class ProdutoController {
         return ResponseEntity.ok(new VariacaoResponseDTO(variacaoAtualizada));
     }
 
+    // Endpoint para um VENDEDOR listar apenas os SEUS produtos
+    @GetMapping("/vendedor/meus-produtos")
+    @PreAuthorize("hasRole('VENDEDOR')")
+    public ResponseEntity<List<ProdutoResponseDTO>> listarMeusProdutos() {
+        List<ProdutoResponseDTO> produtos = service.listarProdutosDoVendedorLogado();
+        return ResponseEntity.ok(produtos);
+    }
 }
