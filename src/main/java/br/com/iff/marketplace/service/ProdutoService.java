@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.jpa.domain.Specification;
 import br.com.iff.marketplace.repository.specifications.ProdutoSpecification;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 
 @Service
@@ -89,23 +91,19 @@ public class ProdutoService {
     public VariacaoProduto adicionarVariacao(Long produtoId, VariacaoRequestDTO variacaoDTO) {
         log.info("SERVICE: Tentando adicionar variação ao produto ID: {}", produtoId);
 
-        // 1. Pega o usuário logado pra checar se ele é o dono do produto.
         Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info("SERVICE: Usuário logado tem ID: {}", usuarioLogado.getId());
 
-        // 2. Busca o produto "pai" no banco.
         Produto produtoPai = produtoRepository.findById(produtoId)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
         log.info("SERVICE: Produto 'pai' encontrado. Dono do produto é o Vendedor ID: {}", produtoPai.getVendedor().getId());
 
 
-        // 3. Checagem de segurança: O usuário logado é o dono do produto?
         if (!produtoPai.getVendedor().getId().equals(usuarioLogado.getId())) {
             log.warn("SERVICE: ACESSO NEGADO! Usuário {} não é dono do produto {}", usuarioLogado.getId(), produtoId);
             throw new RuntimeException("Acesso negado: Você só pode adicionar variações aos seus próprios produtos.");
         }
 
-        // 4. Cria a nova variação e preenche com os dados do DTO.
         VariacaoProduto novaVariacao = new VariacaoProduto();
         novaVariacao.setNome(variacaoDTO.getNome());
         novaVariacao.setSku(variacaoDTO.getSku());
@@ -138,4 +136,39 @@ public class ProdutoService {
                 .map(ProdutoResponseDTO::new)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public VariacaoProduto atualizarVariacao(Long variacaoId, VariacaoRequestDTO variacaoDTO) {
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        VariacaoProduto variacao = variacaoProdutoRepository.findById(variacaoId)
+                .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
+
+        if (!variacao.getProduto().getVendedor().getId().equals(usuarioLogado.getId())) {
+            throw new RuntimeException("Acesso negado: Você só pode editar as variações de seus próprios produtos.");
+        }
+
+        variacao.setNome(variacaoDTO.getNome());
+        variacao.setSku(variacaoDTO.getSku());
+        variacao.setPreco(variacaoDTO.getPreco());
+        variacao.setEstoque(variacaoDTO.getEstoque());
+
+        return variacaoProdutoRepository.save(variacao);
+    }
+
+    @Transactional
+    public void deletarVariacao(Long variacaoId) {
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        VariacaoProduto variacao = variacaoProdutoRepository.findById(variacaoId)
+                .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
+
+        if (!variacao.getProduto().getVendedor().getId().equals(usuarioLogado.getId())) {
+            throw new RuntimeException("Acesso negado: Você só pode deletar as variações de seus próprios produtos.");
+        }
+
+        variacaoProdutoRepository.delete(variacao);
+    }
+
+
 }

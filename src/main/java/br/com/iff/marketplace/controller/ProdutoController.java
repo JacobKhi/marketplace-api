@@ -76,4 +76,16 @@ public class ProdutoController {
         Produto produto = service.buscarPorId(id);
         return ResponseEntity.ok(new ProdutoResponseDTO(produto));
     }
+
+    // Endpoint para ATUALIZAR uma variação de produto existente
+    @PutMapping("/variacoes/{variacaoId}")
+    public ResponseEntity<VariacaoResponseDTO> atualizarVariacao(
+            @PathVariable Long variacaoId,
+            @RequestBody VariacaoRequestDTO variacaoDTO) {
+
+        VariacaoProduto variacaoAtualizada = service.atualizarVariacao(variacaoId, variacaoDTO);
+
+        return ResponseEntity.ok(new VariacaoResponseDTO(variacaoAtualizada));
+    }
+
 }
