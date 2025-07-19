@@ -44,7 +44,7 @@ public class UserService {
         return repository.save(newUser);
     }
 
-    public String gerarTokenRecuperacaoSenha(String email) {
+    public String generatePasswordResetToken(String email) {
         Usuario usuario = repository.findUsuarioByEmail(email);
 
         if (usuario == null) {
@@ -61,7 +61,7 @@ public class UserService {
         return token;
     }
 
-    public void resetarSenha(String token, String novaSenha) {
+    public void resetPassword(String token, String novaSenha) {
         Usuario usuario = repository.findBySenhaResetToken(token);
 
         if (usuario == null || usuario.getSenhaResetTokenExpiracao().isBefore(LocalDateTime.now())) {

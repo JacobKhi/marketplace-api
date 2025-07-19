@@ -52,24 +52,7 @@ public class UsuarioController {
         return ResponseEntity.ok(new UsuarioResponseDTO(usuarioAtualizado));
     }
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<String> solicitarRecuperacaoSenha(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
-        String token = service.gerarTokenRecuperacaoSenha(email);
 
-        String resposta = "Token de recuperação (para testes): " + token;
-        return ResponseEntity.ok(resposta);
-    }
-
-    @PostMapping("/reset-password")
-    public ResponseEntity<String> efetuarResetSenha(@RequestBody Map<String, String> body) {
-        String token = body.get("token");
-        String novaSenha = body.get("novaSenha");
-
-        service.resetarSenha(token, novaSenha);
-
-        return ResponseEntity.ok("Senha redefinida com sucesso!");
-    }
 
 
 
