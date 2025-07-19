@@ -2,7 +2,7 @@ package br.com.iff.marketplace.controller;
 
 import br.com.iff.marketplace.controller.dto.PedidoRequestDTO;
 import br.com.iff.marketplace.controller.dto.PedidoResponseDTO;
-import br.com.iff.marketplace.model.Pedido;
+import br.com.iff.marketplace.model.Order;
 import br.com.iff.marketplace.service.PedidoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,7 @@ public class PedidoController {
 
     @PostMapping
     public ResponseEntity<PedidoResponseDTO> criarPedido(@RequestBody PedidoRequestDTO pedidoDTO) {
-        Pedido novoPedido = service.criarPedido(pedidoDTO);
+        Order novoPedido = service.criarPedido(pedidoDTO);
         return ResponseEntity.ok(new PedidoResponseDTO(novoPedido));
     }
 
@@ -41,7 +41,7 @@ public class PedidoController {
 
         StatusPedido novoStatus = StatusPedido.valueOf(body.get("status").toUpperCase());
 
-        Pedido pedidoAtualizado = service.atualizarStatusPedido(id, novoStatus);
+        Order pedidoAtualizado = service.atualizarStatusPedido(id, novoStatus);
         return ResponseEntity.ok(new PedidoResponseDTO(pedidoAtualizado));
     }
 
@@ -51,13 +51,13 @@ public class PedidoController {
             @RequestBody Map<String, String> body) {
 
         String codigoRastreio = body.get("codigoRastreio");
-        Pedido pedidoAtualizado = service.adicionarCodigoRastreio(id, codigoRastreio);
+        Order pedidoAtualizado = service.adicionarCodigoRastreio(id, codigoRastreio);
         return ResponseEntity.ok(new PedidoResponseDTO(pedidoAtualizado));
     }
 
     @PostMapping("/checkout")
     public ResponseEntity<PedidoResponseDTO> checkout() {
-        Pedido novoPedido = service.criarPedidoAPartirDoCarrinho();
+        Order novoPedido = service.criarPedidoAPartirDoCarrinho();
 
         return ResponseEntity.ok(new PedidoResponseDTO(novoPedido));
     }

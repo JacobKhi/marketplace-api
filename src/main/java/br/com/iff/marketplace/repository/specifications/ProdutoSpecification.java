@@ -1,13 +1,13 @@
 package br.com.iff.marketplace.repository.specifications;
 
 import org.springframework.data.jpa.domain.Specification;
-import br.com.iff.marketplace.model.Produto;
+import br.com.iff.marketplace.product.Product;
 
 import java.math.BigDecimal;
 
 public class ProdutoSpecification {
 
-    public static Specification<Produto> comNome(String nome) {
+    public static Specification<Product> comNome(String nome) {
         if (nome == null || nome.isBlank()) {
             return null;
         }
@@ -17,7 +17,7 @@ public class ProdutoSpecification {
                 builder.like(builder.lower(root.get("nome")), "%" + nome.toLowerCase() + "%");
     }
 
-    public static Specification<Produto> comCategoria(Long categoriaId) {
+    public static Specification<Product> comCategoria(Long categoriaId) {
         if (categoriaId == null) {
             return null;
         }
@@ -27,7 +27,7 @@ public class ProdutoSpecification {
                 builder.equal(root.get("categoria").get("id"), categoriaId);
     }
 
-    public static Specification<Produto> comPrecoEntre(BigDecimal precoMin, BigDecimal precoMax) {
+    public static Specification<Product> comPrecoEntre(BigDecimal precoMin, BigDecimal precoMax) {
         if (precoMin != null && precoMax != null) {
             return (root, query, builder) -> builder.between(root.get("preco"), precoMin, precoMax);
         }

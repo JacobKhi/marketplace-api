@@ -6,6 +6,7 @@ import br.com.iff.marketplace.controller.dto.ItemPedidoRequestDTO;
 import br.com.iff.marketplace.model.*;
 import br.com.iff.marketplace.model.enums.PerfilUsuario;
 import br.com.iff.marketplace.model.enums.StatusPedido;
+import br.com.iff.marketplace.product.ProductRepository;
 import br.com.iff.marketplace.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
 
-    private final ProdutoRepository produtoRepository;
+    private final ProductRepository productRepository;
 
     private final UsuarioRepository usuarioRepository;
 
@@ -38,11 +39,11 @@ public class PedidoService {
     public List<PedidoResponseDTO> listarPedidos() {
         User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        List<Pedido> pedidos;
+        List<Order> pedidos;
 
-        if (userLogado.getPerfil() == PerfilUsuario.COMPRADOR) {
+        if (userLogado.getProfile() == PerfilUsuario.COMPRADOR) {
             pedidos = pedidoRepository.findByCompradorId(userLogado.getId());
-        } else if (userLogado.getPerfil() == PerfilUsuario.VENDEDOR) {
+        } else if (userLogado.getProfile() == PerfilUsuario.VENDEDOR) {
             pedidos = pedidoRepository.findByVendedorId(userLogado.getId());
         } else {
             pedidos = pedidoRepository.findAll();
@@ -54,17 +55,17 @@ public class PedidoService {
     }
 
     public PedidoResponseDTO buscarPorId(Long id) {
-        Pedido pedido = pedidoRepository.findById(id)
+        Order pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
         return new PedidoResponseDTO(pedido);
     }
 
     @Transactional
-    public Pedido criarPedido(PedidoRequestDTO dto) {
+    public Order criarPedido(PedidoRequestDTO dto) {
         User comprador = usuarioRepository.findById(dto.getCompradorId())
                 .orElseThrow(() -> new RuntimeException("Comprador não encontrado!"));
 
-        Pedido pedido = new Pedido();
+        Order pedido = new Order();
         pedido.setComprador(comprador);
         pedido.setDataPedido(LocalDateTime.now());
         pedido.setStatus(StatusPedido.PROCESSANDO);
@@ -100,14 +101,14 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
-    private Pedido verificaVendedorDoPedido(Long pedidoId) {
+    private Order verificaVendedorDoPedido(Long pedidoId) {
         User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Pedido pedidoEncontrado = pedidoRepository.findById(pedidoId)
+        Order pedidoEncontrado = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
 
         boolean isVendedorDoPedido = pedidoEncontrado.getItens().stream()
-                .anyMatch(item -> item.getProduto().getVendedor().getId().equals(userLogado.getId()));
+                .anyMatch(item -> item.getProduto().getSeller().getId().equals(userLogado.getId()));
 
         if (!isVendedorDoPedido) {
             throw new RuntimeException("Acesso negado: Você não é o vendedor de nenhum item neste pedido.");
@@ -117,21 +118,21 @@ public class PedidoService {
     }
 
     @Transactional
-    public Pedido adicionarCodigoRastreio(Long id, String codigoRastreio) {
-        Pedido pedidoEncontrado = verificaVendedorDoPedido(id);
+    public Order adicionarCodigoRastreio(Long id, String codigoRastreio) {
+        Order pedidoEncontrado = verificaVendedorDoPedido(id);
         pedidoEncontrado.setCodigoRastreio(codigoRastreio);
         return pedidoRepository.save(pedidoEncontrado);
     }
 
     @Transactional
-    public Pedido atualizarStatusPedido(Long id, StatusPedido novoStatus) {
-        Pedido pedidoEncontrado = verificaVendedorDoPedido(id);
+    public Order atualizarStatusPedido(Long id, StatusPedido novoStatus) {
+        Order pedidoEncontrado = verificaVendedorDoPedido(id);
         pedidoEncontrado.setStatus(novoStatus);
         return pedidoRepository.save(pedidoEncontrado);
     }
 
     @Transactional
-    public Pedido criarPedidoAPartirDoCarrinho() {
+    public Order criarPedidoAPartirDoCarrinho() {
         User comprador = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(comprador.getId())
@@ -141,7 +142,7 @@ public class PedidoService {
             throw new RuntimeException("Seu carrinho está vazio!");
         }
 
-        Pedido pedido = new Pedido();
+        Order pedido = new Order();
         pedido.setComprador(comprador);
         pedido.setDataPedido(LocalDateTime.now());
         pedido.setStatus(StatusPedido.PROCESSANDO);
@@ -173,7 +174,7 @@ public class PedidoService {
         pedido.setItens(itensPedido);
         pedido.setValorTotal(valorTotal);
 
-        Pedido pedidoSalvo = pedidoRepository.save(pedido);
+        Order pedidoSalvo = pedidoRepository.save(pedido);
 
         carrinho.getItens().clear();
         carrinhoRepository.save(carrinho);

@@ -1,20 +1,18 @@
-package br.com.iff.marketplace.service;
+package br.com.iff.marketplace.product;
 
-import br.com.iff.marketplace.controller.dto.ProdutoRequestDTO;
+import br.com.iff.marketplace.product.dto.ProductRequestDTO;
 import br.com.iff.marketplace.controller.dto.VariacaoRequestDTO;
-import br.com.iff.marketplace.model.Categoria;
-import br.com.iff.marketplace.model.Produto;
+import br.com.iff.marketplace.category.Category;
 import br.com.iff.marketplace.model.User;
 import br.com.iff.marketplace.model.VariacaoProduto;
-import br.com.iff.marketplace.repository.CategoriaRepository;
-import br.com.iff.marketplace.repository.ProdutoRepository;
+import br.com.iff.marketplace.category.CategoryRepository;
 import br.com.iff.marketplace.repository.UsuarioRepository;
 import br.com.iff.marketplace.repository.VariacaoProdutoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import br.com.iff.marketplace.controller.dto.ProdutoResponseDTO;
+import br.com.iff.marketplace.product.dto.ProductResponseDTO;
 import java.util.stream.Collectors;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,65 +24,65 @@ import java.math.BigDecimal;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ProdutoService {
+public class ProductService {
 
-    private final ProdutoRepository produtoRepository;
+    private final ProductRepository productRepository;
 
-    private final CategoriaRepository categoriaRepository;
+    private final CategoryRepository categoryRepository;
 
     private final UsuarioRepository usuarioRepository;
 
     private final VariacaoProdutoRepository variacaoProdutoRepository;
 
-    public Produto salvarProduto(ProdutoRequestDTO dto) {
-        Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
+    public Product salvarProduto(ProductRequestDTO dto) {
+        Category categoria = categoryRepository.findById(dto.getCategoriaId())
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada!"));
 
         User vendedor = usuarioRepository.findById(dto.getVendedorId())
                 .orElseThrow(() -> new RuntimeException("Vendedor não encontrado!"));
 
-        Produto produto = new Produto();
-        produto.setNome(dto.getNome());
-        produto.setDescricao(dto.getDescricao());
+        Product produto = new Product();
+        produto.setName(dto.getNome());
+        produto.setDescription(dto.getDescricao());
 
-        produto.setCategoria(categoria);
-        produto.setVendedor(vendedor);
+        produto.setCategory(categoria);
+        produto.setSeller(vendedor);
 
-        return produtoRepository.save(produto);
+        return productRepository.save(produto);
     }
 
-    public Produto atualizarProduto(Long id, ProdutoRequestDTO dto) {
+    public Product atualizarProduto(Long id, ProductRequestDTO dto) {
         User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Produto produtoEncontrado = produtoRepository.findById(id)
+        Product produtoEncontrado = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
 
-        if (!produtoEncontrado.getVendedor().getId().equals(userLogado.getId())) {
+        if (!produtoEncontrado.getSeller().getId().equals(userLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode editar seus próprios produtos.");
         }
 
-        produtoEncontrado.setNome(dto.getNome());
-        produtoEncontrado.setDescricao(dto.getDescricao());
+        produtoEncontrado.setName(dto.getNome());
+        produtoEncontrado.setDescription(dto.getDescricao());
 
-        return produtoRepository.save(produtoEncontrado);
+        return productRepository.save(produtoEncontrado);
     }
 
     public void deletarProduto(Long id) {
 
         User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Produto produtoEncontrado = produtoRepository.findById(id)
+        Product produtoEncontrado = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
 
-        if (!produtoEncontrado.getVendedor().getId().equals(userLogado.getId())) {
+        if (!produtoEncontrado.getSeller().getId().equals(userLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode deletar seus próprios produtos.");
         }
 
-        produtoRepository.deleteById(id);
+        productRepository.deleteById(id);
     }
 
-    public Produto buscarPorId(Long id) {
-        return produtoRepository.findById(id)
+    public Product buscarPorId(Long id) {
+        return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
     }
 
@@ -94,12 +92,12 @@ public class ProdutoService {
         User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info("SERVICE: Usuário logado tem ID: {}", userLogado.getId());
 
-        Produto produtoPai = produtoRepository.findById(produtoId)
+        Product produtoPai = productRepository.findById(produtoId)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
-        log.info("SERVICE: Produto 'pai' encontrado. Dono do produto é o Vendedor ID: {}", produtoPai.getVendedor().getId());
+        log.info("SERVICE: Produto 'pai' encontrado. Dono do produto é o Vendedor ID: {}", produtoPai.getSeller().getId());
 
 
-        if (!produtoPai.getVendedor().getId().equals(userLogado.getId())) {
+        if (!produtoPai.getSeller().getId().equals(userLogado.getId())) {
             log.warn("SERVICE: ACESSO NEGADO! Usuário {} não é dono do produto {}", userLogado.getId(), produtoId);
             throw new RuntimeException("Acesso negado: Você só pode adicionar variações aos seus próprios produtos.");
         }
@@ -115,10 +113,10 @@ public class ProdutoService {
         return variacaoProdutoRepository.save(novaVariacao);
     }
 
-    public List<ProdutoResponseDTO> listarProdutos(
+    public List<ProductResponseDTO> listarProdutos(
             String nome, Long categoriaId, BigDecimal precoMin, BigDecimal precoMax) {
 
-        Specification<Produto> spec = (root, query, builder) -> builder.conjunction();
+        Specification<Product> spec = (root, query, builder) -> builder.conjunction();
 
         if (nome != null && !nome.isBlank()) {
             spec = spec.and(ProdutoSpecification.comNome(nome));
@@ -130,10 +128,10 @@ public class ProdutoService {
             spec = spec.and(ProdutoSpecification.comPrecoEntre(precoMin, precoMax));
         }
 
-        List<Produto> produtos = produtoRepository.findAll(spec);
+        List<Product> produtos = productRepository.findAll(spec);
 
         return produtos.stream()
-                .map(ProdutoResponseDTO::new)
+                .map(ProductResponseDTO::new)
                 .collect(Collectors.toList());
     }
 
@@ -144,7 +142,7 @@ public class ProdutoService {
         VariacaoProduto variacao = variacaoProdutoRepository.findById(variacaoId)
                 .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
 
-        if (!variacao.getProduto().getVendedor().getId().equals(userLogado.getId())) {
+        if (!variacao.getProduto().getSeller().getId().equals(userLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode editar as variações de seus próprios produtos.");
         }
 
@@ -163,20 +161,20 @@ public class ProdutoService {
         VariacaoProduto variacao = variacaoProdutoRepository.findById(variacaoId)
                 .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
 
-        if (!variacao.getProduto().getVendedor().getId().equals(userLogado.getId())) {
+        if (!variacao.getProduto().getSeller().getId().equals(userLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode deletar as variações de seus próprios produtos.");
         }
 
         variacaoProdutoRepository.delete(variacao);
     }
 
-    public List<ProdutoResponseDTO> listarProdutosDoVendedorLogado() {
+    public List<ProductResponseDTO> listarProdutosDoVendedorLogado() {
         User vendedorLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        List<Produto> produtos = produtoRepository.findByVendedorId(vendedorLogado.getId());
+        List<Product> produtos = productRepository.findByVendedorId(vendedorLogado.getId());
 
         return produtos.stream()
-                .map(ProdutoResponseDTO::new)
+                .map(ProductResponseDTO::new)
                 .collect(Collectors.toList());
     }
 

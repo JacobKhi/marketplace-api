@@ -1,9 +1,9 @@
-package br.com.iff.marketplace.controller.dto;
+package br.com.iff.marketplace.product.dto;
 
 import lombok.Data;
 
 @Data
-public class ProdutoRequestDTO {
+public class ProductRequestDTO {
 
     private String nome;
     private String descricao;

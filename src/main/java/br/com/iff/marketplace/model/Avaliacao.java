@@ -29,7 +29,7 @@ public class Avaliacao {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id", unique = true)
-    private Pedido pedido;
+    private Order pedido;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "avaliador_id")

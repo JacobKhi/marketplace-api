@@ -2,7 +2,7 @@ package br.com.iff.marketplace.service;
 
 import br.com.iff.marketplace.controller.dto.AvaliacaoRequestDTO;
 import br.com.iff.marketplace.model.Avaliacao;
-import br.com.iff.marketplace.model.Pedido;
+import br.com.iff.marketplace.model.Order;
 import br.com.iff.marketplace.model.User;
 import br.com.iff.marketplace.repository.AvaliacaoRepository;
 import br.com.iff.marketplace.repository.PedidoRepository;
@@ -34,7 +34,7 @@ public class AvaliacaoService {
             throw new RuntimeException("Este pedido já foi avaliado!");
         }
 
-        Pedido pedido = pedidoRepository.findById(dto.getPedidoId())
+        Order pedido = pedidoRepository.findById(dto.getPedidoId())
                 .orElseThrow(() -> new NotFoundException("Pedido não encontrado!"));
 
         User avaliador = usuarioRepository.findById(dto.getAvaliadorId())
@@ -62,9 +62,9 @@ public class AvaliacaoService {
         Avaliacao avaliacao = avaliacaoRepository.findById(avaliacaoId)
                 .orElseThrow(() -> new RuntimeException("Avaliação não encontrada!"));
 
-        Pedido pedidoDaAvaliacao = avaliacao.getPedido();
+        Order pedidoDaAvaliacao = avaliacao.getPedido();
 
-        User vendedorDoPedido = pedidoDaAvaliacao.getItens().getFirst().getProduto().getVendedor();
+        User vendedorDoPedido = pedidoDaAvaliacao.getItens().getFirst().getProduto().getSeller();
 
         if (!vendedorDoPedido.getId().equals(userLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode responder avaliações de seus próprios produtos.");

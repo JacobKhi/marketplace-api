@@ -1,7 +1,7 @@
 package br.com.iff.marketplace.controller;
 
 import br.com.iff.marketplace.controller.dto.PagamentoRequestDTO;
-import br.com.iff.marketplace.model.Pedido;
+import br.com.iff.marketplace.model.Order;
 import br.com.iff.marketplace.model.enums.StatusPedido;
 import br.com.iff.marketplace.repository.PedidoRepository;
 import br.com.iff.marketplace.service.PagamentoService;
@@ -25,7 +25,7 @@ public class PagamentoController {
     @PostMapping
     public ResponseEntity<String> processarPagamento(@RequestBody PagamentoRequestDTO dto) {
         try {
-            Pedido pedido = pedidoRepository.findById(dto.getPedidoId())
+            Order pedido = pedidoRepository.findById(dto.getPedidoId())
                     .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
 
             Charge charge = pagamentoService.criarCobranca(

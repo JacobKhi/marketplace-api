@@ -1,5 +1,8 @@
-package br.com.iff.marketplace.model;
+package br.com.iff.marketplace.product;
 
+import br.com.iff.marketplace.category.Category;
+import br.com.iff.marketplace.model.User;
+import br.com.iff.marketplace.model.VariacaoProduto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,31 +21,31 @@ import jakarta.persistence.OneToMany;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-public class Produto {
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
+    private String name;
 
     @Column(length = 1000)
-    private String descricao;
+    private String description;
 
-    private String marca;
+    private String brand;
 
-    private Boolean anuncioPatrocinado;
+    private Boolean sponsoredAd;
 
     // Relacionamento com Categoria
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id")
-    private Categoria categoria;
+    private Category category;
 
     // Relacionamento com Usuario (Vendedor)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vendedor_id")
-    private User vendedor;
+    private User seller;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VariacaoProduto> variacoes = new ArrayList<>();
+    private List<VariacaoProduto> variations = new ArrayList<>();
 }

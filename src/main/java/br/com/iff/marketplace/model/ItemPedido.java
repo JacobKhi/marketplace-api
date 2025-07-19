@@ -1,5 +1,6 @@
 package br.com.iff.marketplace.model;
 
+import br.com.iff.marketplace.product.Product;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,9 +20,9 @@ public class ItemPedido {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id")
-    private Pedido pedido;
+    private Order pedido;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produto_id")
-    private Produto produto;
+    private Product produto;
 }

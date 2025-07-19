@@ -1,9 +1,9 @@
-package br.com.iff.marketplace.controller;
+package br.com.iff.marketplace.product;
 
 import br.com.iff.marketplace.controller.dto.*;
-import br.com.iff.marketplace.model.Produto;
+import br.com.iff.marketplace.product.dto.ProductRequestDTO;
+import br.com.iff.marketplace.product.dto.ProductResponseDTO;
 import br.com.iff.marketplace.service.AvaliacaoService;
-import br.com.iff.marketplace.service.ProdutoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("/produtos")
 @Slf4j
 @RequiredArgsConstructor
-public class ProdutoController {
+public class ProductController {
 
-    private final ProdutoService service;
+    private final ProductService service;
     private final AvaliacaoService avaliacaoService;
 
     @PostMapping
-    public ResponseEntity<Produto> cadastrarProduto(@RequestBody ProdutoRequestDTO produtoDTO) {
-        Produto novoProduto = service.salvarProduto(produtoDTO);
+    public ResponseEntity<Product> cadastrarProduto(@RequestBody ProductRequestDTO produtoDTO) {
+        Product novoProduto = service.salvarProduto(produtoDTO);
         return ResponseEntity.ok(novoProduto);
     }
 
@@ -41,20 +41,20 @@ public class ProdutoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProdutoResponseDTO>> listarProdutos(
+    public ResponseEntity<List<ProductResponseDTO>> listarProdutos(
             @RequestParam(value = "nome", required = false) String nome,
             @RequestParam(value = "categoriaId", required = false) Long categoriaId,
             @RequestParam(value = "precoMin", required = false) BigDecimal precoMin,
             @RequestParam(value = "precoMax", required = false) BigDecimal precoMax) {
 
-        List<ProdutoResponseDTO> produtos = service.listarProdutos(nome, categoriaId, precoMin, precoMax);
+        List<ProductResponseDTO> produtos = service.listarProdutos(nome, categoriaId, precoMin, precoMax);
         return ResponseEntity.ok(produtos);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProdutoResponseDTO> atualizarProduto(@PathVariable Long id, @RequestBody ProdutoRequestDTO produtoDTO) {
-        Produto produtoAtualizado = service.atualizarProduto(id, produtoDTO);
-        return ResponseEntity.ok(new ProdutoResponseDTO(produtoAtualizado));
+    public ResponseEntity<ProductResponseDTO> atualizarProduto(@PathVariable Long id, @RequestBody ProductRequestDTO produtoDTO) {
+        Product produtoAtualizado = service.atualizarProduto(id, produtoDTO);
+        return ResponseEntity.ok(new ProductResponseDTO(produtoAtualizado));
     }
 
     // Endpoint para DELETAR um produto
@@ -73,9 +73,9 @@ public class ProdutoController {
 
     // ENDPOINT para buscar um produto por ID
     @GetMapping("/{id}")
-    public ResponseEntity<ProdutoResponseDTO> buscarProdutoPorId(@PathVariable Long id) {
-        Produto produto = service.buscarPorId(id);
-        return ResponseEntity.ok(new ProdutoResponseDTO(produto));
+    public ResponseEntity<ProductResponseDTO> buscarProdutoPorId(@PathVariable Long id) {
+        Product produto = service.buscarPorId(id);
+        return ResponseEntity.ok(new ProductResponseDTO(produto));
     }
 
     // Endpoint para ATUALIZAR uma variação de produto existente
@@ -92,8 +92,8 @@ public class ProdutoController {
     // Endpoint para um VENDEDOR listar apenas os SEUS produtos
     @GetMapping("/vendedor/meus-produtos")
     @PreAuthorize("hasRole('VENDEDOR')")
-    public ResponseEntity<List<ProdutoResponseDTO>> listarMeusProdutos() {
-        List<ProdutoResponseDTO> produtos = service.listarProdutosDoVendedorLogado();
+    public ResponseEntity<List<ProductResponseDTO>> listarMeusProdutos() {
+        List<ProductResponseDTO> produtos = service.listarProdutosDoVendedorLogado();
         return ResponseEntity.ok(produtos);
     }
 }

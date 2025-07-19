@@ -1,4 +1,4 @@
-package br.com.iff.marketplace.model;
+package br.com.iff.marketplace.category;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,13 +10,14 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-public class Categoria {
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
+    private String name;
 
-    private String descricao;
+    private String description;
+
 }

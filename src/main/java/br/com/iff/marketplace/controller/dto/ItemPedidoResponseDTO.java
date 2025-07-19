@@ -11,7 +11,7 @@ public class ItemPedidoResponseDTO {
     private BigDecimal precoUnitario;
 
     public ItemPedidoResponseDTO(ItemPedido item) {
-        this.produtoNome = item.getProduto().getNome();
+        this.produtoNome = item.getProduto().getName();
         this.quantidade = item.getQuantidade();
         this.precoUnitario = item.getPrecoUnitario();
     }

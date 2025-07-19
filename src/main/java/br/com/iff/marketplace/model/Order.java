@@ -12,7 +12,7 @@ import br.com.iff.marketplace.model.enums.StatusPedido;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-public class Pedido {
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

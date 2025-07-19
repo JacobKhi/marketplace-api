@@ -16,10 +16,10 @@ public class UserResponseDTO {
 
     public UserResponseDTO(User user) {
         this.id = user.getId();
-        this.nome = user.getNome();
+        this.nome = user.getName();
         this.email = user.getEmail();
-        this.telefone = user.getTelefone();
-        this.ativo = user.isAtivo();
-        this.perfil = user.getPerfil();
+        this.telefone = user.getPhoneNumber();
+        this.ativo = user.isActive();
+        this.perfil = user.getProfile();
     }
 }

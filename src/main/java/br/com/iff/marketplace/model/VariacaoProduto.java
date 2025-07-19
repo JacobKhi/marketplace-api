@@ -1,5 +1,6 @@
 package br.com.iff.marketplace.model;
 
+import br.com.iff.marketplace.product.Product;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,5 +27,5 @@ public class VariacaoProduto {
     // Relacionamento com o Produto "Pai"
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produto_id")
-    private Produto produto;
+    private Product produto;
 }
