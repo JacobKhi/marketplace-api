@@ -1,6 +1,6 @@
 package br.com.iff.marketplace.service;
 
-import br.com.iff.marketplace.model.Usuario;
+import br.com.iff.marketplace.model.User;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,13 +18,13 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
-    public String generateToken(Usuario usuario) {
+    public String generateToken(User user) {
         try {
             SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
             return Jwts.builder()
                     .issuer("marketplace-api")
-                    .subject(usuario.getEmail())
+                    .subject(user.getEmail())
                     .issuedAt(Date.from(Instant.now()))
                     .expiration(Date.from(genExpirationDate()))
                     .signWith(secretKey)

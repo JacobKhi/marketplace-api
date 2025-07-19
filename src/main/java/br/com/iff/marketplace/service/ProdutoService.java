@@ -4,7 +4,7 @@ import br.com.iff.marketplace.controller.dto.ProdutoRequestDTO;
 import br.com.iff.marketplace.controller.dto.VariacaoRequestDTO;
 import br.com.iff.marketplace.model.Categoria;
 import br.com.iff.marketplace.model.Produto;
-import br.com.iff.marketplace.model.Usuario;
+import br.com.iff.marketplace.model.User;
 import br.com.iff.marketplace.model.VariacaoProduto;
 import br.com.iff.marketplace.repository.CategoriaRepository;
 import br.com.iff.marketplace.repository.ProdutoRepository;
@@ -40,7 +40,7 @@ public class ProdutoService {
         Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada!"));
 
-        Usuario vendedor = usuarioRepository.findById(dto.getVendedorId())
+        User vendedor = usuarioRepository.findById(dto.getVendedorId())
                 .orElseThrow(() -> new RuntimeException("Vendedor não encontrado!"));
 
         Produto produto = new Produto();
@@ -54,12 +54,12 @@ public class ProdutoService {
     }
 
     public Produto atualizarProduto(Long id, ProdutoRequestDTO dto) {
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Produto produtoEncontrado = produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
 
-        if (!produtoEncontrado.getVendedor().getId().equals(usuarioLogado.getId())) {
+        if (!produtoEncontrado.getVendedor().getId().equals(userLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode editar seus próprios produtos.");
         }
 
@@ -71,12 +71,12 @@ public class ProdutoService {
 
     public void deletarProduto(Long id) {
 
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Produto produtoEncontrado = produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
 
-        if (!produtoEncontrado.getVendedor().getId().equals(usuarioLogado.getId())) {
+        if (!produtoEncontrado.getVendedor().getId().equals(userLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode deletar seus próprios produtos.");
         }
 
@@ -91,16 +91,16 @@ public class ProdutoService {
     public VariacaoProduto adicionarVariacao(Long produtoId, VariacaoRequestDTO variacaoDTO) {
         log.info("SERVICE: Tentando adicionar variação ao produto ID: {}", produtoId);
 
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info("SERVICE: Usuário logado tem ID: {}", usuarioLogado.getId());
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        log.info("SERVICE: Usuário logado tem ID: {}", userLogado.getId());
 
         Produto produtoPai = produtoRepository.findById(produtoId)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
         log.info("SERVICE: Produto 'pai' encontrado. Dono do produto é o Vendedor ID: {}", produtoPai.getVendedor().getId());
 
 
-        if (!produtoPai.getVendedor().getId().equals(usuarioLogado.getId())) {
-            log.warn("SERVICE: ACESSO NEGADO! Usuário {} não é dono do produto {}", usuarioLogado.getId(), produtoId);
+        if (!produtoPai.getVendedor().getId().equals(userLogado.getId())) {
+            log.warn("SERVICE: ACESSO NEGADO! Usuário {} não é dono do produto {}", userLogado.getId(), produtoId);
             throw new RuntimeException("Acesso negado: Você só pode adicionar variações aos seus próprios produtos.");
         }
 
@@ -139,12 +139,12 @@ public class ProdutoService {
 
     @Transactional
     public VariacaoProduto atualizarVariacao(Long variacaoId, VariacaoRequestDTO variacaoDTO) {
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         VariacaoProduto variacao = variacaoProdutoRepository.findById(variacaoId)
                 .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
 
-        if (!variacao.getProduto().getVendedor().getId().equals(usuarioLogado.getId())) {
+        if (!variacao.getProduto().getVendedor().getId().equals(userLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode editar as variações de seus próprios produtos.");
         }
 
@@ -158,12 +158,12 @@ public class ProdutoService {
 
     @Transactional
     public void deletarVariacao(Long variacaoId) {
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         VariacaoProduto variacao = variacaoProdutoRepository.findById(variacaoId)
                 .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
 
-        if (!variacao.getProduto().getVendedor().getId().equals(usuarioLogado.getId())) {
+        if (!variacao.getProduto().getVendedor().getId().equals(userLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode deletar as variações de seus próprios produtos.");
         }
 
@@ -171,7 +171,7 @@ public class ProdutoService {
     }
 
     public List<ProdutoResponseDTO> listarProdutosDoVendedorLogado() {
-        Usuario vendedorLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User vendedorLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         List<Produto> produtos = produtoRepository.findByVendedorId(vendedorLogado.getId());
 

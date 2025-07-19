@@ -33,6 +33,6 @@ public class Avaliacao {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "avaliador_id")
-    private Usuario avaliador;
+    private User avaliador;
 
 }

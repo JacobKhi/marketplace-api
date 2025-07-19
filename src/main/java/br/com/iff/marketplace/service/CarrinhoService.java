@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import br.com.iff.marketplace.controller.dto.AddItemCarrinhoDTO;
 import br.com.iff.marketplace.model.CarrinhoDeCompras;
 import br.com.iff.marketplace.model.CarrinhoDeComprasItem;
-import br.com.iff.marketplace.model.Usuario;
+import br.com.iff.marketplace.model.User;
 import br.com.iff.marketplace.model.VariacaoProduto;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,15 +23,15 @@ public class CarrinhoService {
 
     @Transactional
     public CarrinhoDeCompras adicionarItem(AddItemCarrinhoDTO dto) {
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         VariacaoProduto variacao = variacaoProdutoRepository.findById(dto.getVariacaoId())
                 .orElseThrow(() -> new RuntimeException("Variação de produto não encontrada!"));
 
-        CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(usuarioLogado.getId())
+        CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(userLogado.getId())
                 .orElseGet(() -> {
                     CarrinhoDeCompras novoCarrinho = new CarrinhoDeCompras();
-                    novoCarrinho.setUsuario(usuarioLogado);
+                    novoCarrinho.setUser(userLogado);
                     return novoCarrinho;
                 });
 
@@ -55,9 +55,9 @@ public class CarrinhoService {
 
     @Transactional
     public CarrinhoDeCompras removerItem(Long itemId) {
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(usuarioLogado.getId())
+        CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(userLogado.getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não possui um carrinho de compras."));
 
         boolean foiRemovido = carrinho.getItens().removeIf(item -> item.getId().equals(itemId));
@@ -70,21 +70,21 @@ public class CarrinhoService {
     }
 
     public CarrinhoDeCompras getMeuCarrinho() {
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return carrinhoRepository.findByUsuarioId(usuarioLogado.getId())
+        return carrinhoRepository.findByUsuarioId(userLogado.getId())
                 .orElseGet(() -> {
                     CarrinhoDeCompras novoCarrinho = new CarrinhoDeCompras();
-                    novoCarrinho.setUsuario(usuarioLogado);
+                    novoCarrinho.setUser(userLogado);
                     return carrinhoRepository.save(novoCarrinho);
                 });
     }
 
     @Transactional
     public CarrinhoDeCompras atualizarQuantidadeItem(Long itemId, UpdateItemCarrinhoDTO dto) {
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(usuarioLogado.getId())
+        CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(userLogado.getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não possui um carrinho de compras."));
 
         CarrinhoDeComprasItem itemParaAtualizar = carrinho.getItens().stream()

@@ -17,7 +17,7 @@ public class CarrinhoDeCompras {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", unique = true)
-    private Usuario usuario;
+    private User user;
 
     @OneToMany(mappedBy = "carrinho", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CarrinhoDeComprasItem> itens = new ArrayList<>();

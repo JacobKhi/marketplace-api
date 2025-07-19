@@ -1,9 +1,10 @@
 package br.com.iff.marketplace.service;
 
 import br.com.iff.marketplace.authentication.dto.CreateUserDTO;
-import br.com.iff.marketplace.model.Usuario;
+import br.com.iff.marketplace.model.User;
 import br.com.iff.marketplace.model.enums.PerfilUsuario;
 import br.com.iff.marketplace.repository.UsuarioRepository;
+import br.com.iff.marketplace.user.dto.UpdateUserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,18 +21,18 @@ public class UserService {
     private final UsuarioRepository repository;
     private final PasswordEncoder passwordEncoder;
 
-    public Usuario salvarUsuario(Usuario usuario) {
-        String senhaOriginal = usuario.getPassword();
+    public User salvarUsuario(User user) {
+        String senhaOriginal = user.getPassword();
 
         String senhaCriptografada = passwordEncoder.encode(senhaOriginal);
 
-        usuario.setPassword(senhaCriptografada);
+        user.setPassword(senhaCriptografada);
 
-        return repository.save(usuario);
+        return repository.save(user);
     }
 
-    public Usuario createUser(CreateUserDTO userDTO) {
-        Usuario newUser = new Usuario();
+    public User createUser(CreateUserDTO userDTO) {
+        User newUser = new User();
         newUser.setName(userDTO.getName());
         newUser.setEmail(userDTO.getEmail());
         newUser.setPhoneNumber(userDTO.getPhoneNumber());
@@ -45,45 +46,45 @@ public class UserService {
     }
 
     public String generatePasswordResetToken(String email) {
-        Usuario usuario = repository.findUsuarioByEmail(email);
+        User user = repository.findUsuarioByEmail(email);
 
-        if (usuario == null) {
+        if (user == null) {
             throw new RuntimeException("Usuário não encontrado com o e-mail fornecido.");
         }
 
         String token = UUID.randomUUID().toString();
 
-        usuario.setSenhaResetToken(token);
-        usuario.setSenhaResetTokenExpiracao(LocalDateTime.now().plusMinutes(30));
+        user.setSenhaResetToken(token);
+        user.setSenhaResetTokenExpiracao(LocalDateTime.now().plusMinutes(30));
 
-        repository.save(usuario);
+        repository.save(user);
 
         return token;
     }
 
     public void resetPassword(String token, String novaSenha) {
-        Usuario usuario = repository.findBySenhaResetToken(token);
+        User user = repository.findBySenhaResetToken(token);
 
-        if (usuario == null || usuario.getSenhaResetTokenExpiracao().isBefore(LocalDateTime.now())) {
+        if (user == null || user.getSenhaResetTokenExpiracao().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Token inválido ou expirado.");
         }
 
         String senhaCriptografada = passwordEncoder.encode(novaSenha);
-        usuario.setPassword(senhaCriptografada);
+        user.setPassword(senhaCriptografada);
 
-        usuario.setSenhaResetToken(null);
-        usuario.setSenhaResetTokenExpiracao(null);
+        user.setSenhaResetToken(null);
+        user.setSenhaResetTokenExpiracao(null);
 
-        repository.save(usuario);
+        repository.save(user);
     }
 
-    public Usuario atualizarUsuario(Long id, Usuario dadosParaAtualizar) {
-        Usuario usuarioEncontrado = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
+    public User updateUserProfile(Long userId, UpdateUserDTO dto) {
+        User userEncontrado = repository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + userId));
 
-        usuarioEncontrado.setName(dadosParaAtualizar.getName());
-        usuarioEncontrado.setPhoneNumber(dadosParaAtualizar.getPhoneNumber());
-        return repository.save(usuarioEncontrado);
+        userEncontrado.setName(dto.getName());
+        userEncontrado.setPhoneNumber(dto.getPhoneNumber());
+        return repository.save(userEncontrado);
     }
 
     public void deleteById(Long id) {
@@ -95,16 +96,16 @@ public class UserService {
 
     @Transactional
     public void toggleActivation(Long id) {
-        Usuario usuario = repository.findByIdEvenIfInactive(id)
+        User user = repository.findByIdEvenIfInactive(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
 
-        boolean estadoAtual = usuario.isActive();
-        usuario.setActive(!estadoAtual);
+        boolean estadoAtual = user.isActive();
+        user.setActive(!estadoAtual);
 
-        repository.save(usuario);
+        repository.save(user);
     }
 
-    public List<Usuario> findAll(boolean incluirInativos) {
+    public List<User> findAll(boolean incluirInativos) {
         if (incluirInativos) {
             return repository.findAllEvenIfInactive();
         } else {
@@ -112,8 +113,5 @@ public class UserService {
         }
     }
 
-    public Usuario buscarUsuarioLogado() {
-        return (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    }
 
 }

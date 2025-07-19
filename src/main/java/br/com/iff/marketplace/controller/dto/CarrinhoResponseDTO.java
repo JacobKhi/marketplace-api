@@ -14,7 +14,7 @@ public class CarrinhoResponseDTO {
 
     public CarrinhoResponseDTO(CarrinhoDeCompras carrinho) {
         this.id = carrinho.getId();
-        this.nomeUsuario = carrinho.getUsuario().getNome();
+        this.nomeUsuario = carrinho.getUser().getNome();
         this.itens = carrinho.getItens().stream()
                 .map(CarrinhoItemResponseDTO::new)
                 .collect(Collectors.toList());

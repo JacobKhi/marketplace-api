@@ -41,7 +41,7 @@ public class Produto {
     // Relacionamento com Usuario (Vendedor)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vendedor_id")
-    private Usuario vendedor;
+    private User vendedor;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VariacaoProduto> variacoes = new ArrayList<>();

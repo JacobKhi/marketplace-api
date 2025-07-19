@@ -1,6 +1,6 @@
 package br.com.iff.marketplace.user.controller;
 
-import br.com.iff.marketplace.controller.dto.UsuarioResponseDTO;
+import br.com.iff.marketplace.controller.dto.UserResponseDTO;
 import br.com.iff.marketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +20,9 @@ public class UserAdminController {
 
     // Endpoint para ver todos os usuários
     @GetMapping()
-    public ResponseEntity<List<UsuarioResponseDTO>> listAllUsers() {
-        List<UsuarioResponseDTO> usuarios = userService.findAll(true).stream()
-                .map(UsuarioResponseDTO::new)
+    public ResponseEntity<List<UserResponseDTO>> listAllUsers() {
+        List<UserResponseDTO> usuarios = userService.findAll(true).stream()
+                .map(UserResponseDTO::new)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(usuarios);
     }

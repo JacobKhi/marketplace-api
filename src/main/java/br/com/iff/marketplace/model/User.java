@@ -20,7 +20,7 @@ import java.util.List;
 @Entity
 @SQLDelete(sql = "UPDATE usuario SET ativo = false WHERE id = ?")
 @Where(clause = "ativo = true")
-public class Usuario implements UserDetails {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

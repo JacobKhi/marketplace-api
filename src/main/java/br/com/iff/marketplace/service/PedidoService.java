@@ -36,14 +36,14 @@ public class PedidoService {
     private final CarrinhoDeComprasRepository carrinhoRepository;
 
     public List<PedidoResponseDTO> listarPedidos() {
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         List<Pedido> pedidos;
 
-        if (usuarioLogado.getPerfil() == PerfilUsuario.COMPRADOR) {
-            pedidos = pedidoRepository.findByCompradorId(usuarioLogado.getId());
-        } else if (usuarioLogado.getPerfil() == PerfilUsuario.VENDEDOR) {
-            pedidos = pedidoRepository.findByVendedorId(usuarioLogado.getId());
+        if (userLogado.getPerfil() == PerfilUsuario.COMPRADOR) {
+            pedidos = pedidoRepository.findByCompradorId(userLogado.getId());
+        } else if (userLogado.getPerfil() == PerfilUsuario.VENDEDOR) {
+            pedidos = pedidoRepository.findByVendedorId(userLogado.getId());
         } else {
             pedidos = pedidoRepository.findAll();
         }
@@ -61,7 +61,7 @@ public class PedidoService {
 
     @Transactional
     public Pedido criarPedido(PedidoRequestDTO dto) {
-        Usuario comprador = usuarioRepository.findById(dto.getCompradorId())
+        User comprador = usuarioRepository.findById(dto.getCompradorId())
                 .orElseThrow(() -> new RuntimeException("Comprador não encontrado!"));
 
         Pedido pedido = new Pedido();
@@ -101,13 +101,13 @@ public class PedidoService {
     }
 
     private Pedido verificaVendedorDoPedido(Long pedidoId) {
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Pedido pedidoEncontrado = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
 
         boolean isVendedorDoPedido = pedidoEncontrado.getItens().stream()
-                .anyMatch(item -> item.getProduto().getVendedor().getId().equals(usuarioLogado.getId()));
+                .anyMatch(item -> item.getProduto().getVendedor().getId().equals(userLogado.getId()));
 
         if (!isVendedorDoPedido) {
             throw new RuntimeException("Acesso negado: Você não é o vendedor de nenhum item neste pedido.");
@@ -132,7 +132,7 @@ public class PedidoService {
 
     @Transactional
     public Pedido criarPedidoAPartirDoCarrinho() {
-        Usuario comprador = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User comprador = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(comprador.getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não possui um carrinho de compras."));

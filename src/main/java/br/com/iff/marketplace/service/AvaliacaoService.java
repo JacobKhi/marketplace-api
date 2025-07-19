@@ -3,7 +3,7 @@ package br.com.iff.marketplace.service;
 import br.com.iff.marketplace.controller.dto.AvaliacaoRequestDTO;
 import br.com.iff.marketplace.model.Avaliacao;
 import br.com.iff.marketplace.model.Pedido;
-import br.com.iff.marketplace.model.Usuario;
+import br.com.iff.marketplace.model.User;
 import br.com.iff.marketplace.repository.AvaliacaoRepository;
 import br.com.iff.marketplace.repository.PedidoRepository;
 import br.com.iff.marketplace.repository.UsuarioRepository;
@@ -37,7 +37,7 @@ public class AvaliacaoService {
         Pedido pedido = pedidoRepository.findById(dto.getPedidoId())
                 .orElseThrow(() -> new NotFoundException("Pedido não encontrado!"));
 
-        Usuario avaliador = usuarioRepository.findById(dto.getAvaliadorId())
+        User avaliador = usuarioRepository.findById(dto.getAvaliadorId())
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado!"));
 
         if (!pedido.getComprador().getId().equals(avaliador.getId())) {
@@ -57,16 +57,16 @@ public class AvaliacaoService {
     @Transactional
     public Avaliacao adicionarResposta(Long avaliacaoId, String resposta) {
 
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Avaliacao avaliacao = avaliacaoRepository.findById(avaliacaoId)
                 .orElseThrow(() -> new RuntimeException("Avaliação não encontrada!"));
 
         Pedido pedidoDaAvaliacao = avaliacao.getPedido();
 
-        Usuario vendedorDoPedido = pedidoDaAvaliacao.getItens().getFirst().getProduto().getVendedor();
+        User vendedorDoPedido = pedidoDaAvaliacao.getItens().getFirst().getProduto().getVendedor();
 
-        if (!vendedorDoPedido.getId().equals(usuarioLogado.getId())) {
+        if (!vendedorDoPedido.getId().equals(userLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode responder avaliações de seus próprios produtos.");
         }
 
