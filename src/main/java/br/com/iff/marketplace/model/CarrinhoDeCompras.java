@@ -1,5 +1,6 @@
 package br.com.iff.marketplace.model;
 
+import br.com.iff.marketplace.user.User;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

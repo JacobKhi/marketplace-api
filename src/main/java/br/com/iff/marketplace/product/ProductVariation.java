@@ -1,6 +1,5 @@
-package br.com.iff.marketplace.model;
+package br.com.iff.marketplace.product;
 
-import br.com.iff.marketplace.product.Product;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,22 +9,23 @@ import java.math.BigDecimal;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-public class VariacaoProduto {
+public class ProductVariation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
+    private String name;
 
     private String sku;
 
-    private BigDecimal preco;
-    private Integer estoque;
+    private BigDecimal price;
 
+    private Integer stock;
 
-    // Relacionamento com o Produto "Pai"
+    // Relacionamento com o Produto pai
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produto_id")
-    private Product produto;
+    private Product product;
+
 }

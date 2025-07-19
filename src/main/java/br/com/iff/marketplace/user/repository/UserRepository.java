@@ -1,6 +1,6 @@
-package br.com.iff.marketplace.repository;
+package br.com.iff.marketplace.user.repository;
 
-import br.com.iff.marketplace.model.User;
+import br.com.iff.marketplace.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
     UserDetails findByEmail(String email);
 
     User findUsuarioByEmail(String email);

@@ -1,7 +1,7 @@
 package br.com.iff.marketplace.category.service;
 
 import br.com.iff.marketplace.category.Category;
-import br.com.iff.marketplace.category.CategoryRepository;
+import br.com.iff.marketplace.category.repository.CategoryRepository;
 import br.com.iff.marketplace.category.dto.CategoryResponseDTO;
 import br.com.iff.marketplace.category.dto.CreateCategoryDTO;
 import lombok.RequiredArgsConstructor;

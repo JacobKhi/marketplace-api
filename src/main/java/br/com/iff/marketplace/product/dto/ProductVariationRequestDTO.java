@@ -1,25 +1,20 @@
 package br.com.iff.marketplace.product.dto;
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
-public class ProductRequestDTO {
+public class ProductVariationRequestDTO {
 
     @NotBlank(message = "O nome não pode estar em branco")
     private String name;
 
-    private String description;
-
-    private String brand;
-
-    @NotNull(message = "O id da categoria não pode estar vazio")
-    private Long categoryId;
+    private String sku;
 
     @NotNull(message = "O preco não pode ser nulo")
     @Positive(message = "O preco so pode ser maior que 0")
@@ -29,6 +24,4 @@ public class ProductRequestDTO {
     @PositiveOrZero(message = "O estoque não pode ser negativo")
     private Integer stock;
 
-    @NotNull(message = "O nome da variacão não pode estar em branco")
-    private String variationName;
 }

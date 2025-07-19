@@ -3,10 +3,10 @@ package br.com.iff.marketplace.service;
 import br.com.iff.marketplace.controller.dto.AvaliacaoRequestDTO;
 import br.com.iff.marketplace.model.Avaliacao;
 import br.com.iff.marketplace.model.Order;
-import br.com.iff.marketplace.model.User;
+import br.com.iff.marketplace.user.User;
 import br.com.iff.marketplace.repository.AvaliacaoRepository;
 import br.com.iff.marketplace.repository.PedidoRepository;
-import br.com.iff.marketplace.repository.UsuarioRepository;
+import br.com.iff.marketplace.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class AvaliacaoService {
 
     private final PedidoRepository pedidoRepository;
 
-    private final UsuarioRepository usuarioRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public Avaliacao criarAvaliacao(AvaliacaoRequestDTO dto) {
@@ -37,7 +37,7 @@ public class AvaliacaoService {
         Order pedido = pedidoRepository.findById(dto.getPedidoId())
                 .orElseThrow(() -> new NotFoundException("Pedido não encontrado!"));
 
-        User avaliador = usuarioRepository.findById(dto.getAvaliadorId())
+        User avaliador = userRepository.findById(dto.getAvaliadorId())
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado!"));
 
         if (!pedido.getComprador().getId().equals(avaliador.getId())) {

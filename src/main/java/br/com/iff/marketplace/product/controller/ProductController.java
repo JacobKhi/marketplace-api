@@ -1,6 +1,9 @@
-package br.com.iff.marketplace.product;
+package br.com.iff.marketplace.product.controller;
 
 import br.com.iff.marketplace.controller.dto.*;
+import br.com.iff.marketplace.product.Product;
+import br.com.iff.marketplace.product.dto.ProductVariationRequestDTO;
+import br.com.iff.marketplace.product.service.ProductService;
 import br.com.iff.marketplace.product.dto.ProductRequestDTO;
 import br.com.iff.marketplace.product.dto.ProductResponseDTO;
 import br.com.iff.marketplace.service.AvaliacaoService;
@@ -12,7 +15,7 @@ import java.util.List;
 import java.math.BigDecimal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import br.com.iff.marketplace.model.VariacaoProduto;
+import br.com.iff.marketplace.product.ProductVariation;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
@@ -26,16 +29,16 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<Product> cadastrarProduto(@RequestBody ProductRequestDTO produtoDTO) {
-        Product novoProduto = service.salvarProduto(produtoDTO);
+        Product novoProduto = service.createProduct(produtoDTO);
         return ResponseEntity.ok(novoProduto);
     }
 
     @PostMapping("/{produtoId}/variacoes")
     public ResponseEntity<VariacaoResponseDTO> adicionarVariacao(
             @PathVariable Long produtoId,
-            @RequestBody VariacaoRequestDTO variacaoDTO) {
+            @RequestBody ProductVariationRequestDTO variacaoDTO) {
 
-        VariacaoProduto novaVariacao = service.adicionarVariacao(produtoId, variacaoDTO);
+        ProductVariation novaVariacao = service.addVariation(produtoId, variacaoDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new VariacaoResponseDTO(novaVariacao));
     }
@@ -47,20 +50,20 @@ public class ProductController {
             @RequestParam(value = "precoMin", required = false) BigDecimal precoMin,
             @RequestParam(value = "precoMax", required = false) BigDecimal precoMax) {
 
-        List<ProductResponseDTO> produtos = service.listarProdutos(nome, categoriaId, precoMin, precoMax);
+        List<ProductResponseDTO> produtos = service.searchProducts(nome, categoriaId, precoMin, precoMax);
         return ResponseEntity.ok(produtos);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> atualizarProduto(@PathVariable Long id, @RequestBody ProductRequestDTO produtoDTO) {
-        Product produtoAtualizado = service.atualizarProduto(id, produtoDTO);
+        Product produtoAtualizado = service.updateProduct(id, produtoDTO);
         return ResponseEntity.ok(new ProductResponseDTO(produtoAtualizado));
     }
 
     // Endpoint para DELETAR um produto
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarProduto(@PathVariable Long id) {
-        service.deletarProduto(id);
+        service.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -74,7 +77,7 @@ public class ProductController {
     // ENDPOINT para buscar um produto por ID
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> buscarProdutoPorId(@PathVariable Long id) {
-        Product produto = service.buscarPorId(id);
+        Product produto = service.findProductById(id);
         return ResponseEntity.ok(new ProductResponseDTO(produto));
     }
 
@@ -82,9 +85,9 @@ public class ProductController {
     @PutMapping("/variacoes/{variacaoId}")
     public ResponseEntity<VariacaoResponseDTO> atualizarVariacao(
             @PathVariable Long variacaoId,
-            @RequestBody VariacaoRequestDTO variacaoDTO) {
+            @RequestBody ProductVariationRequestDTO variacaoDTO) {
 
-        VariacaoProduto variacaoAtualizada = service.atualizarVariacao(variacaoId, variacaoDTO);
+        ProductVariation variacaoAtualizada = service.updateVariation(variacaoId, variacaoDTO);
 
         return ResponseEntity.ok(new VariacaoResponseDTO(variacaoAtualizada));
     }
@@ -93,7 +96,7 @@ public class ProductController {
     @GetMapping("/vendedor/meus-produtos")
     @PreAuthorize("hasRole('VENDEDOR')")
     public ResponseEntity<List<ProductResponseDTO>> listarMeusProdutos() {
-        List<ProductResponseDTO> produtos = service.listarProdutosDoVendedorLogado();
+        List<ProductResponseDTO> produtos = service.findProductBySeller();
         return ResponseEntity.ok(produtos);
     }
 }

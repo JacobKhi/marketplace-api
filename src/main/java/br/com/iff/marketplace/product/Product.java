@@ -1,8 +1,7 @@
 package br.com.iff.marketplace.product;
 
 import br.com.iff.marketplace.category.Category;
-import br.com.iff.marketplace.model.User;
-import br.com.iff.marketplace.model.VariacaoProduto;
+import br.com.iff.marketplace.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -46,6 +45,6 @@ public class Product {
     @JoinColumn(name = "vendedor_id")
     private User seller;
 
-    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VariacaoProduto> variations = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductVariation> variations = new ArrayList<>();
 }

@@ -1,6 +1,6 @@
 package br.com.iff.marketplace.service;
 
-import br.com.iff.marketplace.model.User;
+import br.com.iff.marketplace.user.User;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

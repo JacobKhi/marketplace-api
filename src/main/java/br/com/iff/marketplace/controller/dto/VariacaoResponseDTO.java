@@ -1,6 +1,6 @@
 package br.com.iff.marketplace.controller.dto;
 
-import br.com.iff.marketplace.model.VariacaoProduto;
+import br.com.iff.marketplace.product.ProductVariation;
 import lombok.Data;
 import java.math.BigDecimal;
 
@@ -12,11 +12,11 @@ public class VariacaoResponseDTO {
     private BigDecimal preco;
     private Integer estoque;
 
-    public VariacaoResponseDTO(VariacaoProduto variacao) {
+    public VariacaoResponseDTO(ProductVariation variacao) {
         this.id = variacao.getId();
-        this.nome = variacao.getNome();
+        this.nome = variacao.getName();
         this.sku = variacao.getSku();
-        this.preco = variacao.getPreco();
-        this.estoque = variacao.getEstoque();
+        this.preco = variacao.getPrice();
+        this.estoque = variacao.getStock();
     }
 }

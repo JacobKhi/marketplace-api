@@ -16,8 +16,8 @@ public class CarrinhoItemResponseDTO {
     public CarrinhoItemResponseDTO(CarrinhoDeComprasItem item) {
         this.id = item.getId();
         this.variacaoId = item.getVariacao().getId();
-        this.nomeVariacao = item.getVariacao().getNome();
+        this.nomeVariacao = item.getVariacao().getName();
         this.quantidade = item.getQuantidade();
-        this.precoUnitario = item.getVariacao().getPreco();
+        this.precoUnitario = item.getVariacao().getPrice();
     }
 }

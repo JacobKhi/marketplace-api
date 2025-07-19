@@ -1,4 +1,4 @@
-package br.com.iff.marketplace.model;
+package br.com.iff.marketplace.user;
 
 import br.com.iff.marketplace.model.enums.PerfilUsuario;
 

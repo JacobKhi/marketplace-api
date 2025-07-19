@@ -1,8 +1,10 @@
 package br.com.iff.marketplace.product.dto;
 
-import br.com.iff.marketplace.controller.dto.VariacaoResponseDTO;
+import br.com.iff.marketplace.category.dto.CategoryResponseDTO;
+import br.com.iff.marketplace.controller.dto.UserResponseDTO;
 import br.com.iff.marketplace.product.Product;
 import lombok.Data;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,18 +13,34 @@ import java.util.stream.Collectors;
 public class ProductResponseDTO {
 
     private Long id;
-    private String nome;
-    private String categoriaNome;
-    private String vendedorNome;
-    private List<VariacaoResponseDTO> variacoes;
 
-    public ProductResponseDTO(Product produto) {
-        this.id = produto.getId();
-        this.nome = produto.getName();
-        this.categoriaNome = produto.getCategory().getName();
-        this.vendedorNome = produto.getSeller().getName();
-        this.variacoes = produto.getVariations().stream()
-                .map(VariacaoResponseDTO::new) // Para cada variação na lista, cria um VariacaoResponseDTO
-                .collect(Collectors.toList()); // E junta tudo numa nova lista
+    private String name;
+
+    private String description;
+
+    private String brand;
+
+    private Boolean sponsoredAd;
+
+    private CategoryResponseDTO category;
+
+    private UserResponseDTO seller;
+
+    private List<ProductVariationResponseDTO> variations;
+
+    public ProductResponseDTO(Product product) {
+
+        this.id = product.getId();
+        this.name = product.getName();
+        this.description = product.getDescription();
+        this.brand = product.getBrand();
+        this.sponsoredAd = product.getSponsoredAd();
+        this.category = new CategoryResponseDTO(product.getCategory());
+        this.seller = new UserResponseDTO(product.getSeller());
+        this.variations = product.getVariations().stream()
+                .map(ProductVariationResponseDTO::new)
+                .collect(Collectors.toList());
+
     }
+
 }

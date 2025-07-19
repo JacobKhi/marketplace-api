@@ -6,8 +6,12 @@ import br.com.iff.marketplace.controller.dto.ItemPedidoRequestDTO;
 import br.com.iff.marketplace.model.*;
 import br.com.iff.marketplace.model.enums.PerfilUsuario;
 import br.com.iff.marketplace.model.enums.StatusPedido;
-import br.com.iff.marketplace.product.ProductRepository;
+import br.com.iff.marketplace.product.repository.ProductRepository;
+import br.com.iff.marketplace.product.ProductVariation;
+import br.com.iff.marketplace.product.repository.ProductVariationRepository;
 import br.com.iff.marketplace.repository.*;
+import br.com.iff.marketplace.user.User;
+import br.com.iff.marketplace.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,9 +34,9 @@ public class PedidoService {
 
     private final ProductRepository productRepository;
 
-    private final UsuarioRepository usuarioRepository;
+    private final UserRepository userRepository;
 
-    private final VariacaoProdutoRepository variacaoProdutoRepository;
+    private final ProductVariationRepository productVariationRepository;
 
     private final CarrinhoDeComprasRepository carrinhoRepository;
 
@@ -62,7 +66,7 @@ public class PedidoService {
 
     @Transactional
     public Order criarPedido(PedidoRequestDTO dto) {
-        User comprador = usuarioRepository.findById(dto.getCompradorId())
+        User comprador = userRepository.findById(dto.getCompradorId())
                 .orElseThrow(() -> new RuntimeException("Comprador não encontrado!"));
 
         Order pedido = new Order();
@@ -75,24 +79,24 @@ public class PedidoService {
         BigDecimal valorTotal = BigDecimal.ZERO;
 
         for (ItemPedidoRequestDTO itemDTO : dto.getItens()) {
-            VariacaoProduto variacao = variacaoProdutoRepository.findById(itemDTO.getVariacaoId())
+            ProductVariation variacao = productVariationRepository.findById(itemDTO.getVariacaoId())
                     .orElseThrow(() -> new RuntimeException("Variação de produto não encontrada!"));
 
-            if (variacao.getEstoque() < itemDTO.getQuantidade()) {
-                throw new RuntimeException("Estoque insuficiente para a variação: " + variacao.getNome());
+            if (variacao.getStock() < itemDTO.getQuantidade()) {
+                throw new RuntimeException("Estoque insuficiente para a variação: " + variacao.getName());
             }
 
             ItemPedido itemPedido = new ItemPedido();
-            itemPedido.setProduto(variacao.getProduto());
+            itemPedido.setProduto(variacao.getProduct());
             itemPedido.setQuantidade(itemDTO.getQuantidade());
-            itemPedido.setPrecoUnitario(variacao.getPreco());
+            itemPedido.setPrecoUnitario(variacao.getPrice());
             itemPedido.setPedido(pedido);
             itensPedido.add(itemPedido);
 
-            variacao.setEstoque(variacao.getEstoque() - itemDTO.getQuantidade());
-            variacaoProdutoRepository.save(variacao);
+            variacao.setStock(variacao.getStock() - itemDTO.getQuantidade());
+            productVariationRepository.save(variacao);
 
-            valorTotal = valorTotal.add(variacao.getPreco().multiply(new BigDecimal(itemDTO.getQuantidade())));
+            valorTotal = valorTotal.add(variacao.getPrice().multiply(new BigDecimal(itemDTO.getQuantidade())));
         }
 
         pedido.setItens(itensPedido);
@@ -152,23 +156,23 @@ public class PedidoService {
         BigDecimal valorTotal = BigDecimal.ZERO;
 
         for (CarrinhoDeComprasItem itemCarrinho : carrinho.getItens()) {
-            VariacaoProduto variacao = itemCarrinho.getVariacao();
+            ProductVariation variacao = itemCarrinho.getVariacao();
 
-            if (variacao.getEstoque() < itemCarrinho.getQuantidade()) {
-                throw new RuntimeException("Estoque insuficiente para o produto: " + variacao.getNome());
+            if (variacao.getStock() < itemCarrinho.getQuantidade()) {
+                throw new RuntimeException("Estoque insuficiente para o produto: " + variacao.getName());
             }
 
             ItemPedido itemPedido = new ItemPedido();
-            itemPedido.setProduto(variacao.getProduto());
+            itemPedido.setProduto(variacao.getProduct());
             itemPedido.setQuantidade(itemCarrinho.getQuantidade());
-            itemPedido.setPrecoUnitario(variacao.getPreco());
+            itemPedido.setPrecoUnitario(variacao.getPrice());
             itemPedido.setPedido(pedido);
             itensPedido.add(itemPedido);
 
-            variacao.setEstoque(variacao.getEstoque() - itemCarrinho.getQuantidade());
-            variacaoProdutoRepository.save(variacao);
+            variacao.setStock(variacao.getStock() - itemCarrinho.getQuantidade());
+            productVariationRepository.save(variacao);
 
-            valorTotal = valorTotal.add(variacao.getPreco().multiply(new BigDecimal(itemCarrinho.getQuantidade())));
+            valorTotal = valorTotal.add(variacao.getPrice().multiply(new BigDecimal(itemCarrinho.getQuantidade())));
         }
 
         pedido.setItens(itensPedido);

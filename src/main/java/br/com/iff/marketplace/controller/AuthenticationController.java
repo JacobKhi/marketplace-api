@@ -3,7 +3,7 @@ package br.com.iff.marketplace.controller;
 import br.com.iff.marketplace.authentication.dto.CreateUserDTO;
 import br.com.iff.marketplace.controller.dto.LoginDTO;
 import br.com.iff.marketplace.controller.dto.UserResponseDTO;
-import br.com.iff.marketplace.model.User;
+import br.com.iff.marketplace.user.User;
 import br.com.iff.marketplace.service.TokenService;
 import br.com.iff.marketplace.service.UserService;
 import jakarta.validation.Valid;

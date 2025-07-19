@@ -1,14 +1,14 @@
 package br.com.iff.marketplace.service;
 
 import br.com.iff.marketplace.repository.CarrinhoDeComprasRepository;
-import br.com.iff.marketplace.repository.VariacaoProdutoRepository;
+import br.com.iff.marketplace.product.repository.ProductVariationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import br.com.iff.marketplace.controller.dto.AddItemCarrinhoDTO;
 import br.com.iff.marketplace.model.CarrinhoDeCompras;
 import br.com.iff.marketplace.model.CarrinhoDeComprasItem;
-import br.com.iff.marketplace.model.User;
-import br.com.iff.marketplace.model.VariacaoProduto;
+import br.com.iff.marketplace.user.User;
+import br.com.iff.marketplace.product.ProductVariation;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -19,13 +19,13 @@ import br.com.iff.marketplace.controller.dto.UpdateItemCarrinhoDTO;
 public class CarrinhoService {
 
     private final CarrinhoDeComprasRepository carrinhoRepository;
-    private final VariacaoProdutoRepository variacaoProdutoRepository;
+    private final ProductVariationRepository productVariationRepository;
 
     @Transactional
     public CarrinhoDeCompras adicionarItem(AddItemCarrinhoDTO dto) {
         User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        VariacaoProduto variacao = variacaoProdutoRepository.findById(dto.getVariacaoId())
+        ProductVariation variacao = productVariationRepository.findById(dto.getVariacaoId())
                 .orElseThrow(() -> new RuntimeException("Variação de produto não encontrada!"));
 
         CarrinhoDeCompras carrinho = carrinhoRepository.findByUsuarioId(userLogado.getId())
@@ -96,8 +96,8 @@ public class CarrinhoService {
             throw new IllegalArgumentException("A quantidade deve ser maior que zero.");
         }
 
-        if (itemParaAtualizar.getVariacao().getEstoque() < dto.getQuantidade()) {
-            throw new RuntimeException("Estoque insuficiente. Disponível: " + itemParaAtualizar.getVariacao().getEstoque());
+        if (itemParaAtualizar.getVariacao().getStock() < dto.getQuantidade()) {
+            throw new RuntimeException("Estoque insuficiente. Disponível: " + itemParaAtualizar.getVariacao().getStock());
         }
 
         itemParaAtualizar.setQuantidade(dto.getQuantidade());

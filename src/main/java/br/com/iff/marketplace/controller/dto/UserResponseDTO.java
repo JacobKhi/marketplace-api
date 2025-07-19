@@ -1,6 +1,6 @@
 package br.com.iff.marketplace.controller.dto;
 
-import br.com.iff.marketplace.model.User;
+import br.com.iff.marketplace.user.User;
 import br.com.iff.marketplace.model.enums.PerfilUsuario;
 import lombok.Data;
 

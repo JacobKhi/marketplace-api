@@ -1,9 +1,9 @@
 package br.com.iff.marketplace.service;
 
 import br.com.iff.marketplace.authentication.dto.CreateUserDTO;
-import br.com.iff.marketplace.model.User;
+import br.com.iff.marketplace.user.User;
 import br.com.iff.marketplace.model.enums.PerfilUsuario;
-import br.com.iff.marketplace.repository.UsuarioRepository;
+import br.com.iff.marketplace.user.repository.UserRepository;
 import br.com.iff.marketplace.user.dto.UpdateUserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,13 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UsuarioRepository repository;
+    private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 
     public User salvarUsuario(User user) {
