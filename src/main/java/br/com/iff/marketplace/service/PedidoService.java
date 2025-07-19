@@ -45,9 +45,9 @@ public class PedidoService {
 
         List<Order> pedidos;
 
-        if (userLogado.getProfile() == PerfilUsuario.COMPRADOR) {
+        if (userLogado.getProfile() == PerfilUsuario.CUSTOMER) {
             pedidos = pedidoRepository.findByCompradorId(userLogado.getId());
-        } else if (userLogado.getProfile() == PerfilUsuario.VENDEDOR) {
+        } else if (userLogado.getProfile() == PerfilUsuario.SELLER) {
             pedidos = pedidoRepository.findByVendedorId(userLogado.getId());
         } else {
             pedidos = pedidoRepository.findAll();

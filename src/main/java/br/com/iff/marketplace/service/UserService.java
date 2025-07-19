@@ -39,7 +39,7 @@ public class UserService {
         // Obtém e criptografa a senha
         String hashedPassword = passwordEncoder.encode(userDTO.getPassword());
         newUser.setPassword(hashedPassword);
-        newUser.setProfile(PerfilUsuario.COMPRADOR);
+        newUser.setProfile(PerfilUsuario.CUSTOMER);
 
         return repository.save(newUser);
     }
