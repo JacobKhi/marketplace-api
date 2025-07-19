@@ -1,4 +1,4 @@
-package br.com.iff.marketplace.model;
+package br.com.iff.marketplace.order;
 
 import br.com.iff.marketplace.user.User;
 import jakarta.persistence.*;
@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import br.com.iff.marketplace.model.enums.StatusPedido;
+import br.com.iff.marketplace.order.enums.OrderStatus;
 
 @Data
 @EqualsAndHashCode(of = "id")
@@ -19,20 +19,22 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String numeroPedido;
-    private LocalDateTime dataPedido;
-    private BigDecimal valorTotal;
+    private String orderNumber;
+
+    private LocalDateTime orderDate;
+
+    private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
-    private StatusPedido status;
+    private OrderStatus status;
 
-    private String codigoRastreio;
+    private String trackingCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comprador_id")
-    private User comprador;
+    private User customer;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemPedido> itens = new ArrayList<>();
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
 
 }

@@ -1,15 +1,15 @@
 package br.com.iff.marketplace.service;
 
-import br.com.iff.marketplace.controller.dto.PedidoRequestDTO;
-import br.com.iff.marketplace.controller.dto.PedidoResponseDTO;
-import br.com.iff.marketplace.controller.dto.ItemPedidoRequestDTO;
-import br.com.iff.marketplace.model.*;
-import br.com.iff.marketplace.model.enums.PerfilUsuario;
-import br.com.iff.marketplace.model.enums.StatusPedido;
+import br.com.iff.marketplace.order.*;
+import br.com.iff.marketplace.order.dto.OrderItemRequestDTO;
+import br.com.iff.marketplace.order.dto.OrderRequestDTO;
+import br.com.iff.marketplace.order.dto.OrderResponseDTO;
+import br.com.iff.marketplace.order.repository.OrderRepository;
+import br.com.iff.marketplace.user.enums.UserProfiles;
+import br.com.iff.marketplace.order.enums.OrderStatus;
 import br.com.iff.marketplace.product.repository.ProductRepository;
 import br.com.iff.marketplace.product.ProductVariation;
 import br.com.iff.marketplace.product.repository.ProductVariationRepository;
-import br.com.iff.marketplace.repository.*;
 import br.com.iff.marketplace.user.User;
 import br.com.iff.marketplace.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ import br.com.iff.marketplace.repository.CarrinhoDeComprasRepository;
 @RequiredArgsConstructor
 public class PedidoService {
 
-    private final PedidoRepository pedidoRepository;
+    private final OrderRepository orderRepository;
 
     private final ProductRepository productRepository;
 
@@ -40,45 +40,45 @@ public class PedidoService {
 
     private final CarrinhoDeComprasRepository carrinhoRepository;
 
-    public List<PedidoResponseDTO> listarPedidos() {
+    public List<OrderResponseDTO> listarPedidos() {
         User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         List<Order> pedidos;
 
-        if (userLogado.getProfile() == PerfilUsuario.CUSTOMER) {
-            pedidos = pedidoRepository.findByCompradorId(userLogado.getId());
-        } else if (userLogado.getProfile() == PerfilUsuario.SELLER) {
-            pedidos = pedidoRepository.findByVendedorId(userLogado.getId());
+        if (userLogado.getProfile() == UserProfiles.CUSTOMER) {
+            pedidos = orderRepository.findByCompradorId(userLogado.getId());
+        } else if (userLogado.getProfile() == UserProfiles.SELLER) {
+            pedidos = orderRepository.findByVendedorId(userLogado.getId());
         } else {
-            pedidos = pedidoRepository.findAll();
+            pedidos = orderRepository.findAll();
         }
 
         return pedidos.stream()
-                .map(PedidoResponseDTO::new)
+                .map(OrderResponseDTO::new)
                 .collect(Collectors.toList());
     }
 
-    public PedidoResponseDTO buscarPorId(Long id) {
-        Order pedido = pedidoRepository.findById(id)
+    public OrderResponseDTO buscarPorId(Long id) {
+        Order pedido = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
-        return new PedidoResponseDTO(pedido);
+        return new OrderResponseDTO(pedido);
     }
 
     @Transactional
-    public Order criarPedido(PedidoRequestDTO dto) {
+    public Order criarPedido(OrderRequestDTO dto) {
         User comprador = userRepository.findById(dto.getCompradorId())
                 .orElseThrow(() -> new RuntimeException("Comprador não encontrado!"));
 
         Order pedido = new Order();
-        pedido.setComprador(comprador);
-        pedido.setDataPedido(LocalDateTime.now());
-        pedido.setStatus(StatusPedido.PROCESSANDO);
-        pedido.setNumeroPedido(UUID.randomUUID().toString());
+        pedido.setCustomer(comprador);
+        pedido.setOrderDate(LocalDateTime.now());
+        pedido.setStatus(OrderStatus.PROCESSING);
+        pedido.setOrderNumber(UUID.randomUUID().toString());
 
-        List<ItemPedido> itensPedido = new ArrayList<>();
+        List<OrderItem> itensPedido = new ArrayList<>();
         BigDecimal valorTotal = BigDecimal.ZERO;
 
-        for (ItemPedidoRequestDTO itemDTO : dto.getItens()) {
+        for (OrderItemRequestDTO itemDTO : dto.getItens()) {
             ProductVariation variacao = productVariationRepository.findById(itemDTO.getVariacaoId())
                     .orElseThrow(() -> new RuntimeException("Variação de produto não encontrada!"));
 
@@ -86,12 +86,12 @@ public class PedidoService {
                 throw new RuntimeException("Estoque insuficiente para a variação: " + variacao.getName());
             }
 
-            ItemPedido itemPedido = new ItemPedido();
-            itemPedido.setProduto(variacao.getProduct());
-            itemPedido.setQuantidade(itemDTO.getQuantidade());
-            itemPedido.setPrecoUnitario(variacao.getPrice());
-            itemPedido.setPedido(pedido);
-            itensPedido.add(itemPedido);
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(variacao.getProduct());
+            orderItem.setQuantity(itemDTO.getQuantidade());
+            orderItem.setUnitPrice(variacao.getPrice());
+            orderItem.setOrder(pedido);
+            itensPedido.add(orderItem);
 
             variacao.setStock(variacao.getStock() - itemDTO.getQuantidade());
             productVariationRepository.save(variacao);
@@ -99,20 +99,20 @@ public class PedidoService {
             valorTotal = valorTotal.add(variacao.getPrice().multiply(new BigDecimal(itemDTO.getQuantidade())));
         }
 
-        pedido.setItens(itensPedido);
-        pedido.setValorTotal(valorTotal);
+        pedido.setItems(itensPedido);
+        pedido.setTotalAmount(valorTotal);
 
-        return pedidoRepository.save(pedido);
+        return orderRepository.save(pedido);
     }
 
     private Order verificaVendedorDoPedido(Long pedidoId) {
         User userLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Order pedidoEncontrado = pedidoRepository.findById(pedidoId)
+        Order pedidoEncontrado = orderRepository.findById(pedidoId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
 
-        boolean isVendedorDoPedido = pedidoEncontrado.getItens().stream()
-                .anyMatch(item -> item.getProduto().getSeller().getId().equals(userLogado.getId()));
+        boolean isVendedorDoPedido = pedidoEncontrado.getItems().stream()
+                .anyMatch(item -> item.getProduct().getSeller().getId().equals(userLogado.getId()));
 
         if (!isVendedorDoPedido) {
             throw new RuntimeException("Acesso negado: Você não é o vendedor de nenhum item neste pedido.");
@@ -124,15 +124,15 @@ public class PedidoService {
     @Transactional
     public Order adicionarCodigoRastreio(Long id, String codigoRastreio) {
         Order pedidoEncontrado = verificaVendedorDoPedido(id);
-        pedidoEncontrado.setCodigoRastreio(codigoRastreio);
-        return pedidoRepository.save(pedidoEncontrado);
+        pedidoEncontrado.setTrackingCode(codigoRastreio);
+        return orderRepository.save(pedidoEncontrado);
     }
 
     @Transactional
-    public Order atualizarStatusPedido(Long id, StatusPedido novoStatus) {
+    public Order atualizarStatusPedido(Long id, OrderStatus novoStatus) {
         Order pedidoEncontrado = verificaVendedorDoPedido(id);
         pedidoEncontrado.setStatus(novoStatus);
-        return pedidoRepository.save(pedidoEncontrado);
+        return orderRepository.save(pedidoEncontrado);
     }
 
     @Transactional
@@ -147,12 +147,12 @@ public class PedidoService {
         }
 
         Order pedido = new Order();
-        pedido.setComprador(comprador);
-        pedido.setDataPedido(LocalDateTime.now());
-        pedido.setStatus(StatusPedido.PROCESSANDO);
-        pedido.setNumeroPedido(UUID.randomUUID().toString());
+        pedido.setCustomer(comprador);
+        pedido.setOrderDate(LocalDateTime.now());
+        pedido.setStatus(OrderStatus.PROCESSING);
+        pedido.setOrderNumber(UUID.randomUUID().toString());
 
-        List<ItemPedido> itensPedido = new ArrayList<>();
+        List<OrderItem> itensPedido = new ArrayList<>();
         BigDecimal valorTotal = BigDecimal.ZERO;
 
         for (CarrinhoDeComprasItem itemCarrinho : carrinho.getItens()) {
@@ -162,12 +162,12 @@ public class PedidoService {
                 throw new RuntimeException("Estoque insuficiente para o produto: " + variacao.getName());
             }
 
-            ItemPedido itemPedido = new ItemPedido();
-            itemPedido.setProduto(variacao.getProduct());
-            itemPedido.setQuantidade(itemCarrinho.getQuantidade());
-            itemPedido.setPrecoUnitario(variacao.getPrice());
-            itemPedido.setPedido(pedido);
-            itensPedido.add(itemPedido);
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(variacao.getProduct());
+            orderItem.setQuantity(itemCarrinho.getQuantidade());
+            orderItem.setUnitPrice(variacao.getPrice());
+            orderItem.setOrder(pedido);
+            itensPedido.add(orderItem);
 
             variacao.setStock(variacao.getStock() - itemCarrinho.getQuantidade());
             productVariationRepository.save(variacao);
@@ -175,10 +175,10 @@ public class PedidoService {
             valorTotal = valorTotal.add(variacao.getPrice().multiply(new BigDecimal(itemCarrinho.getQuantidade())));
         }
 
-        pedido.setItens(itensPedido);
-        pedido.setValorTotal(valorTotal);
+        pedido.setItems(itensPedido);
+        pedido.setTotalAmount(valorTotal);
 
-        Order pedidoSalvo = pedidoRepository.save(pedido);
+        Order pedidoSalvo = orderRepository.save(pedido);
 
         carrinho.getItens().clear();
         carrinhoRepository.save(carrinho);

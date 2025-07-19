@@ -1,6 +1,6 @@
 package br.com.iff.marketplace.user;
 
-import br.com.iff.marketplace.model.enums.PerfilUsuario;
+import br.com.iff.marketplace.user.enums.UserProfiles;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -39,7 +39,7 @@ public class User implements UserDetails {
     private boolean active = true;
 
     @Enumerated(EnumType.STRING)
-    private PerfilUsuario profile;
+    private UserProfiles profile;
 
     // Campos para a funcionalidade de Reset de Senha
     private String senhaResetToken;

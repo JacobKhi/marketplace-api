@@ -1,4 +1,4 @@
-package br.com.iff.marketplace.model;
+package br.com.iff.marketplace.order;
 
 import br.com.iff.marketplace.product.Product;
 import jakarta.persistence.*;
@@ -9,20 +9,21 @@ import java.math.BigDecimal;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-public class ItemPedido {
+public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer quantidade;
-    private BigDecimal precoUnitario;
+    private Integer quantity;
+
+    private BigDecimal unitPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id")
-    private Order pedido;
+    private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produto_id")
-    private Product produto;
+    private Product product;
 }

@@ -13,6 +13,6 @@ public interface AvaliacaoRepository extends JpaRepository<Avaliacao, Long> {
     // e retornar true se o resultado for maior que zero.
     boolean existsByPedidoId(Long pedidoId);
 
-    @Query("SELECT a FROM Avaliacao a JOIN a.pedido p JOIN p.itens i WHERE i.produto.id = :produtoId")
+    @Query("SELECT a FROM Avaliacao a JOIN a.pedido p JOIN p.items i WHERE i.product.id = :produtoId")
     List<Avaliacao> findAllByProdutoId(Long produtoId);
 }

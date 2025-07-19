@@ -2,10 +2,10 @@ package br.com.iff.marketplace.service;
 
 import br.com.iff.marketplace.controller.dto.AvaliacaoRequestDTO;
 import br.com.iff.marketplace.model.Avaliacao;
-import br.com.iff.marketplace.model.Order;
+import br.com.iff.marketplace.order.Order;
 import br.com.iff.marketplace.user.User;
 import br.com.iff.marketplace.repository.AvaliacaoRepository;
-import br.com.iff.marketplace.repository.PedidoRepository;
+import br.com.iff.marketplace.order.repository.OrderRepository;
 import br.com.iff.marketplace.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +23,7 @@ public class ReviewService {
 
     private final AvaliacaoRepository avaliacaoRepository;
 
-    private final PedidoRepository pedidoRepository;
+    private final OrderRepository orderRepository;
 
     private final UserRepository userRepository;
 
@@ -34,13 +34,13 @@ public class ReviewService {
             throw new RuntimeException("Este pedido já foi avaliado!");
         }
 
-        Order pedido = pedidoRepository.findById(dto.getPedidoId())
+        Order pedido = orderRepository.findById(dto.getPedidoId())
                 .orElseThrow(() -> new NotFoundException("Pedido não encontrado!"));
 
         User avaliador = userRepository.findById(dto.getAvaliadorId())
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado!"));
 
-        if (!pedido.getComprador().getId().equals(avaliador.getId())) {
+        if (!pedido.getCustomer().getId().equals(avaliador.getId())) {
             throw new RuntimeException("Apenas o comprador pode avaliar o pedido.");
         }
 
@@ -64,7 +64,7 @@ public class ReviewService {
 
         Order pedidoDaAvaliacao = avaliacao.getPedido();
 
-        User vendedorDoPedido = pedidoDaAvaliacao.getItens().getFirst().getProduto().getSeller();
+        User vendedorDoPedido = pedidoDaAvaliacao.getItems().getFirst().getProduct().getSeller();
 
         if (!vendedorDoPedido.getId().equals(userLogado.getId())) {
             throw new RuntimeException("Acesso negado: Você só pode responder avaliações de seus próprios produtos.");

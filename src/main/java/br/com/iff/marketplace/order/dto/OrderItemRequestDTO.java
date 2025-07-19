@@ -1,9 +1,9 @@
-package br.com.iff.marketplace.controller.dto;
+package br.com.iff.marketplace.order.dto;
 
 import lombok.Data;
 
 @Data
-public class ItemPedidoRequestDTO {
+public class OrderItemRequestDTO {
     private Long variacaoId;
     private Integer quantidade;
 }

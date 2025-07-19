@@ -2,7 +2,7 @@ package br.com.iff.marketplace.service;
 
 import br.com.iff.marketplace.authentication.dto.CreateUserDTO;
 import br.com.iff.marketplace.user.User;
-import br.com.iff.marketplace.model.enums.PerfilUsuario;
+import br.com.iff.marketplace.user.enums.UserProfiles;
 import br.com.iff.marketplace.user.repository.UserRepository;
 import br.com.iff.marketplace.user.dto.UpdateUserDTO;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class UserService {
         // Obtém e criptografa a senha
         String hashedPassword = passwordEncoder.encode(userDTO.getPassword());
         newUser.setPassword(hashedPassword);
-        newUser.setProfile(PerfilUsuario.CUSTOMER);
+        newUser.setProfile(UserProfiles.CUSTOMER);
 
         return repository.save(newUser);
     }

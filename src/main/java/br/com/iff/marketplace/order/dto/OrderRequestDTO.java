@@ -1,12 +1,12 @@
-package br.com.iff.marketplace.controller.dto;
+package br.com.iff.marketplace.order.dto;
 
 import java.util.List;
 import lombok.Data;
 
 @Data
-public class PedidoRequestDTO {
+public class OrderRequestDTO {
     private Long compradorId;
     // Futuramente, adicionar o ID do endereço de entrega aqui
     // private Long enderecoId;
-    private List<ItemPedidoRequestDTO> itens;
+    private List<OrderItemRequestDTO> itens;
 }

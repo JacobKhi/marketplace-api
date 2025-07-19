@@ -22,7 +22,7 @@ public class AvaliacaoResponseDTO {
         this.comentario = avaliacao.getComentario();
         this.dataAvaliacao = avaliacao.getDataAvaliacao();
         this.nomeAvaliador = avaliacao.getAvaliador().getName();
-        this.numeroDoPedido = avaliacao.getPedido().getNumeroPedido();
+        this.numeroDoPedido = avaliacao.getPedido().getOrderNumber();
         this.respostaVendedor = avaliacao.getRespostaVendedor();
         this.dataResposta = avaliacao.getDataResposta();
     }
