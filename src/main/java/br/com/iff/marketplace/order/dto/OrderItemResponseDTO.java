@@ -6,13 +6,19 @@ import java.math.BigDecimal;
 
 @Data
 public class OrderItemResponseDTO {
-    private String produtoNome;
-    private Integer quantidade;
-    private BigDecimal precoUnitario;
+
+    private Long productId;
+
+    private String productName;
+
+    private Integer quantity;
+
+    private BigDecimal unitPrice;
 
     public OrderItemResponseDTO(OrderItem item) {
-        this.produtoNome = item.getProduct().getName();
-        this.quantidade = item.getQuantity();
-        this.precoUnitario = item.getUnitPrice();
+        this.productId = item.getProduct().getId();
+        this.productName = item.getProduct().getName();
+        this.quantity = item.getQuantity();
+        this.unitPrice = item.getUnitPrice();
     }
 }

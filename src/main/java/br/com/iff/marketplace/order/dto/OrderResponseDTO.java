@@ -10,21 +10,27 @@ import java.util.stream.Collectors;
 
 @Data
 public class OrderResponseDTO {
-    private String numeroPedido;
-    private LocalDateTime dataPedido;
-    private BigDecimal valorTotal;
+
+    private String orderNumber;
+
+    private LocalDateTime orderDate;
+
+    private BigDecimal totalAmount;
+
     private OrderStatus status;
-    private String compradorNome;
-    private List<OrderItemResponseDTO> itens;
+
+    private String customerName;
+
+    private List<OrderItemResponseDTO> items;
 
     public OrderResponseDTO(Order pedido) {
-        this.numeroPedido = pedido.getOrderNumber();
-        this.dataPedido = pedido.getOrderDate();
-        this.valorTotal = pedido.getTotalAmount();
+        this.orderNumber = pedido.getOrderNumber();
+        this.orderDate = pedido.getOrderDate();
+        this.totalAmount = pedido.getTotalAmount();
         this.status = pedido.getStatus();
-        this.compradorNome = pedido.getCustomer().getName();
+        this.customerName = pedido.getCustomer().getName();
 
-        this.itens = pedido.getItems().stream()
+        this.items = pedido.getItems().stream()
                 .map(OrderItemResponseDTO::new)
                 .collect(Collectors.toList());
     }

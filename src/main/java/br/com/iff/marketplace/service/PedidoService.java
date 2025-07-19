@@ -66,7 +66,7 @@ public class PedidoService {
 
     @Transactional
     public Order criarPedido(OrderRequestDTO dto) {
-        User comprador = userRepository.findById(dto.getCompradorId())
+        User comprador = userRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Comprador não encontrado!"));
 
         Order pedido = new Order();
@@ -78,25 +78,25 @@ public class PedidoService {
         List<OrderItem> itensPedido = new ArrayList<>();
         BigDecimal valorTotal = BigDecimal.ZERO;
 
-        for (OrderItemRequestDTO itemDTO : dto.getItens()) {
-            ProductVariation variacao = productVariationRepository.findById(itemDTO.getVariacaoId())
+        for (OrderItemRequestDTO itemDTO : dto.getItems()) {
+            ProductVariation variacao = productVariationRepository.findById(itemDTO.getVariationId())
                     .orElseThrow(() -> new RuntimeException("Variação de produto não encontrada!"));
 
-            if (variacao.getStock() < itemDTO.getQuantidade()) {
+            if (variacao.getStock() < itemDTO.getQuantity()) {
                 throw new RuntimeException("Estoque insuficiente para a variação: " + variacao.getName());
             }
 
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(variacao.getProduct());
-            orderItem.setQuantity(itemDTO.getQuantidade());
+            orderItem.setQuantity(itemDTO.getQuantity());
             orderItem.setUnitPrice(variacao.getPrice());
             orderItem.setOrder(pedido);
             itensPedido.add(orderItem);
 
-            variacao.setStock(variacao.getStock() - itemDTO.getQuantidade());
+            variacao.setStock(variacao.getStock() - itemDTO.getQuantity());
             productVariationRepository.save(variacao);
 
-            valorTotal = valorTotal.add(variacao.getPrice().multiply(new BigDecimal(itemDTO.getQuantidade())));
+            valorTotal = valorTotal.add(variacao.getPrice().multiply(new BigDecimal(itemDTO.getQuantity())));
         }
 
         pedido.setItems(itensPedido);
