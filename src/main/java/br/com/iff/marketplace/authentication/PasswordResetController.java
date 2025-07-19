@@ -2,7 +2,7 @@ package br.com.iff.marketplace.authentication;
 
 import br.com.iff.marketplace.authentication.dto.ForgotPasswordDTO;
 import br.com.iff.marketplace.authentication.dto.ResetPasswordDTO;
-import br.com.iff.marketplace.service.UserService;
+import br.com.iff.marketplace.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")

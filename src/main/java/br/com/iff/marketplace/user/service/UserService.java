@@ -1,4 +1,4 @@
-package br.com.iff.marketplace.service;
+package br.com.iff.marketplace.user.service;
 
 import br.com.iff.marketplace.authentication.dto.CreateUserDTO;
 import br.com.iff.marketplace.user.User;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     public User salvarUsuario(User user) {
@@ -27,7 +27,7 @@ public class UserService {
 
         user.setPassword(senhaCriptografada);
 
-        return repository.save(user);
+        return userRepository.save(user);
     }
 
     public User createUser(CreateUserDTO userDTO) {
@@ -41,11 +41,11 @@ public class UserService {
         newUser.setPassword(hashedPassword);
         newUser.setProfile(UserProfiles.CUSTOMER);
 
-        return repository.save(newUser);
+        return userRepository.save(newUser);
     }
 
     public String generatePasswordResetToken(String email) {
-        User user = repository.findUsuarioByEmail(email);
+        User user = userRepository.findUsuarioByEmail(email);
 
         if (user == null) {
             throw new RuntimeException("Usuário não encontrado com o e-mail fornecido.");
@@ -56,13 +56,13 @@ public class UserService {
         user.setSenhaResetToken(token);
         user.setSenhaResetTokenExpiracao(LocalDateTime.now().plusMinutes(30));
 
-        repository.save(user);
+        userRepository.save(user);
 
         return token;
     }
 
     public void resetPassword(String token, String novaSenha) {
-        User user = repository.findBySenhaResetToken(token);
+        User user = userRepository.findBySenhaResetToken(token);
 
         if (user == null || user.getSenhaResetTokenExpiracao().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Token inválido ou expirado.");
@@ -74,41 +74,41 @@ public class UserService {
         user.setSenhaResetToken(null);
         user.setSenhaResetTokenExpiracao(null);
 
-        repository.save(user);
+        userRepository.save(user);
     }
 
     public User updateUserProfile(Long userId, UpdateUserDTO dto) {
-        User userEncontrado = repository.findById(userId)
+        User userEncontrado = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + userId));
 
         userEncontrado.setName(dto.getName());
         userEncontrado.setPhoneNumber(dto.getPhoneNumber());
-        return repository.save(userEncontrado);
+        return userRepository.save(userEncontrado);
     }
 
     public void deleteById(Long id) {
-        if (!repository.existsById(id)) {
+        if (!userRepository.existsById(id)) {
             throw new RuntimeException("Usuário não encontrado com o ID: " + id);
         }
-        repository.deleteById(id);
+        userRepository.deleteById(id);
     }
 
     @Transactional
     public void toggleActivation(Long id) {
-        User user = repository.findByIdEvenIfInactive(id)
+        User user = userRepository.findByIdEvenIfInactive(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
 
         boolean estadoAtual = user.isActive();
         user.setActive(!estadoAtual);
 
-        repository.save(user);
+        userRepository.save(user);
     }
 
     public List<User> findAll(boolean incluirInativos) {
         if (incluirInativos) {
-            return repository.findAllEvenIfInactive();
+            return userRepository.findAllEvenIfInactive();
         } else {
-            return repository.findAll();
+            return userRepository.findAll();
         }
     }
 

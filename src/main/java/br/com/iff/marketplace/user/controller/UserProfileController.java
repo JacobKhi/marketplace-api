@@ -3,7 +3,7 @@ package br.com.iff.marketplace.user.controller;
 
 import br.com.iff.marketplace.controller.dto.UserResponseDTO;
 import br.com.iff.marketplace.user.User;
-import br.com.iff.marketplace.service.UserService;
+import br.com.iff.marketplace.user.service.UserService;
 import br.com.iff.marketplace.user.dto.UpdateUserDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

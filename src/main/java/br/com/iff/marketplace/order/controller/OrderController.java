@@ -3,7 +3,7 @@ package br.com.iff.marketplace.order.controller;
 import br.com.iff.marketplace.order.Order;
 import br.com.iff.marketplace.order.dto.OrderRequestDTO;
 import br.com.iff.marketplace.order.dto.OrderResponseDTO;
-import br.com.iff.marketplace.service.PedidoService;
+import br.com.iff.marketplace.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,22 +16,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final PedidoService service;
+    private final OrderService service;
 
     @PostMapping
     public ResponseEntity<OrderResponseDTO> criarPedido(@RequestBody OrderRequestDTO pedidoDTO) {
-        Order novoPedido = service.criarPedido(pedidoDTO);
+        Order novoPedido = service.createDirectOrder(pedidoDTO);
         return ResponseEntity.ok(new OrderResponseDTO(novoPedido));
     }
 
     @GetMapping
     public ResponseEntity<List<OrderResponseDTO>> listarPedidos() {
-        return ResponseEntity.ok(service.listarPedidos());
+        return ResponseEntity.ok(service.findAllOrdersForUser());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponseDTO> buscarPedidoPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarPorId(id));
+        return ResponseEntity.ok(service.findOrderById(id));
     }
 
     @PatchMapping("/{id}/status")
@@ -41,7 +41,7 @@ public class OrderController {
 
         OrderStatus novoStatus = OrderStatus.valueOf(body.get("status").toUpperCase());
 
-        Order pedidoAtualizado = service.atualizarStatusPedido(id, novoStatus);
+        Order pedidoAtualizado = service.updateOrderStatus(id, novoStatus);
         return ResponseEntity.ok(new OrderResponseDTO(pedidoAtualizado));
     }
 
@@ -51,13 +51,13 @@ public class OrderController {
             @RequestBody Map<String, String> body) {
 
         String codigoRastreio = body.get("codigoRastreio");
-        Order pedidoAtualizado = service.adicionarCodigoRastreio(id, codigoRastreio);
+        Order pedidoAtualizado = service.addTrackingCode(id, codigoRastreio);
         return ResponseEntity.ok(new OrderResponseDTO(pedidoAtualizado));
     }
 
     @PostMapping("/checkout")
     public ResponseEntity<OrderResponseDTO> checkout() {
-        Order novoPedido = service.criarPedidoAPartirDoCarrinho();
+        Order novoPedido = service.createOrderFromCart();
 
         return ResponseEntity.ok(new OrderResponseDTO(novoPedido));
     }
