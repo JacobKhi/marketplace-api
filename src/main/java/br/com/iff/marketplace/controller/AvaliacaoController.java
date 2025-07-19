@@ -3,7 +3,7 @@ package br.com.iff.marketplace.controller;
 import br.com.iff.marketplace.controller.dto.AvaliacaoRequestDTO;
 import br.com.iff.marketplace.controller.dto.AvaliacaoResponseDTO;
 import br.com.iff.marketplace.model.Avaliacao;
-import br.com.iff.marketplace.service.AvaliacaoService;
+import br.com.iff.marketplace.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AvaliacaoController {
 
-    private final AvaliacaoService service;
+    private final ReviewService service;
 
     @PostMapping
     public ResponseEntity<AvaliacaoResponseDTO> criarAvaliacao(@RequestBody AvaliacaoRequestDTO dto) {

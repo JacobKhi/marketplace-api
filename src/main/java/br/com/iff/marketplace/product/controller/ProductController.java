@@ -6,13 +6,13 @@ import br.com.iff.marketplace.product.dto.ProductVariationRequestDTO;
 import br.com.iff.marketplace.product.service.ProductService;
 import br.com.iff.marketplace.product.dto.ProductRequestDTO;
 import br.com.iff.marketplace.product.dto.ProductResponseDTO;
-import br.com.iff.marketplace.service.AvaliacaoService;
+import br.com.iff.marketplace.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.math.BigDecimal;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import br.com.iff.marketplace.product.ProductVariation;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class ProductController {
 
     private final ProductService service;
-    private final AvaliacaoService avaliacaoService;
+    private final ReviewService reviewService;
 
     @PostMapping
     public ResponseEntity<Product> cadastrarProduto(@RequestBody ProductRequestDTO produtoDTO) {
@@ -43,16 +43,6 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new VariacaoResponseDTO(novaVariacao));
     }
 
-    @GetMapping
-    public ResponseEntity<List<ProductResponseDTO>> listarProdutos(
-            @RequestParam(value = "nome", required = false) String nome,
-            @RequestParam(value = "categoriaId", required = false) Long categoriaId,
-            @RequestParam(value = "precoMin", required = false) BigDecimal precoMin,
-            @RequestParam(value = "precoMax", required = false) BigDecimal precoMax) {
-
-        List<ProductResponseDTO> produtos = service.searchProducts(nome, categoriaId, precoMin, precoMax);
-        return ResponseEntity.ok(produtos);
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> atualizarProduto(@PathVariable Long id, @RequestBody ProductRequestDTO produtoDTO) {
@@ -67,19 +57,9 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    // Endpoint para LISTAR todas as avaliações de um produto específico
-    @GetMapping("/{produtoId}/avaliacoes")
-    public ResponseEntity<List<AvaliacaoResponseDTO>> listarAvaliacoesDoProduto(@PathVariable Long produtoId) {
-        List<AvaliacaoResponseDTO> avaliacoes = avaliacaoService.listarPorProduto(produtoId);
-        return ResponseEntity.ok(avaliacoes);
-    }
 
-    // ENDPOINT para buscar um produto por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> buscarProdutoPorId(@PathVariable Long id) {
-        Product produto = service.findProductById(id);
-        return ResponseEntity.ok(new ProductResponseDTO(produto));
-    }
+
+
 
     // Endpoint para ATUALIZAR uma variação de produto existente
     @PutMapping("/variacoes/{variacaoId}")
