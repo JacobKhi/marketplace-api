@@ -1,6 +1,8 @@
 package br.com.iff.marketplace.service;
 
+import br.com.iff.marketplace.authentication.dto.CreateUserDTO;
 import br.com.iff.marketplace.model.Usuario;
+import br.com.iff.marketplace.model.enums.PerfilUsuario;
 import br.com.iff.marketplace.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,20 +15,33 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 @RequiredArgsConstructor
-public class UsuarioService {
+public class UserService {
 
     private final UsuarioRepository repository;
-
     private final PasswordEncoder passwordEncoder;
 
     public Usuario salvarUsuario(Usuario usuario) {
-        String senhaOriginal = usuario.getSenha();
+        String senhaOriginal = usuario.getPassword();
 
         String senhaCriptografada = passwordEncoder.encode(senhaOriginal);
 
-        usuario.setSenha(senhaCriptografada);
+        usuario.setPassword(senhaCriptografada);
 
         return repository.save(usuario);
+    }
+
+    public Usuario createUser(CreateUserDTO userDTO) {
+        Usuario newUser = new Usuario();
+        newUser.setName(userDTO.getName());
+        newUser.setEmail(userDTO.getEmail());
+        newUser.setPhoneNumber(userDTO.getPhoneNumber());
+        newUser.setDocument(userDTO.getDocument());
+        // Obtém e criptografa a senha
+        String hashedPassword = passwordEncoder.encode(userDTO.getPassword());
+        newUser.setPassword(hashedPassword);
+        newUser.setProfile(PerfilUsuario.COMPRADOR);
+
+        return repository.save(newUser);
     }
 
     public String gerarTokenRecuperacaoSenha(String email) {
@@ -54,7 +69,7 @@ public class UsuarioService {
         }
 
         String senhaCriptografada = passwordEncoder.encode(novaSenha);
-        usuario.setSenha(senhaCriptografada);
+        usuario.setPassword(senhaCriptografada);
 
         usuario.setSenhaResetToken(null);
         usuario.setSenhaResetTokenExpiracao(null);
@@ -66,12 +81,12 @@ public class UsuarioService {
         Usuario usuarioEncontrado = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
 
-        usuarioEncontrado.setNome(dadosParaAtualizar.getNome());
-        usuarioEncontrado.setTelefone(dadosParaAtualizar.getTelefone());
+        usuarioEncontrado.setName(dadosParaAtualizar.getName());
+        usuarioEncontrado.setPhoneNumber(dadosParaAtualizar.getPhoneNumber());
         return repository.save(usuarioEncontrado);
     }
 
-    public void deletarUsuario(Long id) {
+    public void deleteById(Long id) {
         if (!repository.existsById(id)) {
             throw new RuntimeException("Usuário não encontrado com o ID: " + id);
         }
@@ -79,17 +94,17 @@ public class UsuarioService {
     }
 
     @Transactional
-    public void alterarStatusAtivo(Long id) {
+    public void toggleActivation(Long id) {
         Usuario usuario = repository.findByIdEvenIfInactive(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
 
-        boolean estadoAtual = usuario.isAtivo();
-        usuario.setAtivo(!estadoAtual);
+        boolean estadoAtual = usuario.isActive();
+        usuario.setActive(!estadoAtual);
 
         repository.save(usuario);
     }
 
-    public List<Usuario> listarUsuarios(boolean incluirInativos) {
+    public List<Usuario> findAll(boolean incluirInativos) {
         if (incluirInativos) {
             return repository.findAllEvenIfInactive();
         } else {

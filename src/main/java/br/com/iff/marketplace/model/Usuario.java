@@ -26,20 +26,20 @@ public class Usuario implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
+    private String name;
 
     private String email;
 
-    private String senha;
+    private String password;
 
-    private String telefone;
+    private String phoneNumber;
 
-    private String documento; // CPF ou CNPJ
+    private String document; // CPF ou CNPJ
 
-    private boolean ativo = true;
+    private boolean active = true;
 
     @Enumerated(EnumType.STRING)
-    private PerfilUsuario perfil;
+    private PerfilUsuario profile;
 
     // Campos para a funcionalidade de Reset de Senha
     private String senhaResetToken;
@@ -47,15 +47,15 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + perfil.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + profile.name()));
     }
 
     @Override
-    public boolean isEnabled() {return this.ativo;}
+    public boolean isEnabled() {return this.active;}
 
     @Override
     public String getPassword() {
-        return this.senha;
+        return this.password;
     }
 
     @Override
