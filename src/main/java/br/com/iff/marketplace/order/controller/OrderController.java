@@ -18,48 +18,4 @@ public class OrderController {
 
     private final OrderService service;
 
-    @PostMapping
-    public ResponseEntity<OrderResponseDTO> criarPedido(@RequestBody OrderRequestDTO pedidoDTO) {
-        Order novoPedido = service.createDirectOrder(pedidoDTO);
-        return ResponseEntity.ok(new OrderResponseDTO(novoPedido));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<OrderResponseDTO>> listarPedidos() {
-        return ResponseEntity.ok(service.findAllOrdersForUser());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<OrderResponseDTO> buscarPedidoPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findOrderById(id));
-    }
-
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<OrderResponseDTO> atualizarStatusPedido(
-            @PathVariable Long id,
-            @RequestBody Map<String, String> body) {
-
-        OrderStatus novoStatus = OrderStatus.valueOf(body.get("status").toUpperCase());
-
-        Order pedidoAtualizado = service.updateOrderStatus(id, novoStatus);
-        return ResponseEntity.ok(new OrderResponseDTO(pedidoAtualizado));
-    }
-
-    @PatchMapping("/{id}/rastreio")
-    public ResponseEntity<OrderResponseDTO> adicionarCodigoRastreio(
-            @PathVariable Long id,
-            @RequestBody Map<String, String> body) {
-
-        String codigoRastreio = body.get("codigoRastreio");
-        Order pedidoAtualizado = service.addTrackingCode(id, codigoRastreio);
-        return ResponseEntity.ok(new OrderResponseDTO(pedidoAtualizado));
-    }
-
-    @PostMapping("/checkout")
-    public ResponseEntity<OrderResponseDTO> checkout() {
-        Order novoPedido = service.createOrderFromCart();
-
-        return ResponseEntity.ok(new OrderResponseDTO(novoPedido));
-    }
-
 }
