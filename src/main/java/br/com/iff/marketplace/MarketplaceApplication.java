@@ -3,16 +3,11 @@ package br.com.iff.marketplace;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EntityScan(basePackages = {
-		"br.com.iff.marketplace.user",
-		"br.com.iff.marketplace.product",
-		"br.com.iff.marketplace.category",
-		"br.com.iff.marketplace.order",
-		"br.com.iff.marketplace.review",
-		"br.com.iff.marketplace.model"
-})
+@EnableJpaRepositories(basePackages = "br.com.iff.marketplace.*")
+@EntityScan(basePackages = "br.com.iff.marketplace.*")
 public class MarketplaceApplication {
 
 	public static void main(String[] args) {
