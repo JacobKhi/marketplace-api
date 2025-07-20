@@ -1,6 +1,5 @@
 package br.com.iff.marketplace.order.controller;
 
-import br.com.iff.marketplace.order.Order;
 import br.com.iff.marketplace.order.dto.OrderRequestDTO;
 import br.com.iff.marketplace.order.dto.OrderResponseDTO;
 import br.com.iff.marketplace.order.service.OrderService;

@@ -1,4 +1,4 @@
-package br.com.iff.marketplace.model;
+package br.com.iff.marketplace.cart;
 
 import br.com.iff.marketplace.user.User;
 import jakarta.persistence.*;
@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @EqualsAndHashCode(of = "id")
 @Data
-public class CarrinhoDeCompras {
+public class ShoppingCart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,7 @@ public class CarrinhoDeCompras {
     @JoinColumn(name = "usuario_id", unique = true)
     private User user;
 
-    @OneToMany(mappedBy = "carrinho", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CarrinhoDeComprasItem> itens = new ArrayList<>();
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShoppingCartItem> items = new ArrayList<>();
 
 }

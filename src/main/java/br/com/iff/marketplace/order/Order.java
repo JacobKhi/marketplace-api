@@ -13,6 +13,7 @@ import br.com.iff.marketplace.order.enums.OrderStatus;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
+@Table(name = "orders") // Não pode ser order pois ela é uma palavra reservada do SQL
 public class Order {
 
     @Id

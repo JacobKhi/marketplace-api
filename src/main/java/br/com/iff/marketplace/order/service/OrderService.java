@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import br.com.iff.marketplace.model.CarrinhoDeCompras;
-import br.com.iff.marketplace.model.CarrinhoDeComprasItem;
-import br.com.iff.marketplace.repository.CarrinhoDeComprasRepository;
+import br.com.iff.marketplace.cart.ShoppingCart;
+import br.com.iff.marketplace.cart.ShoppingCartItem;
+import br.com.iff.marketplace.cart.repository.ShoppingCartRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +35,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ProductVariationRepository productVariationRepository;
-    private final CarrinhoDeComprasRepository carrinhoRepository;
+    private final ShoppingCartRepository carrinhoRepository;
 
     public List<OrderResponseDTO> findAllOrdersForUser(User authenticatedUser) {
 
@@ -121,10 +121,10 @@ public class OrderService {
         User customer = userRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
 
-        CarrinhoDeCompras cart = carrinhoRepository.findByUsuarioId(customer.getId())
+        ShoppingCart cart = carrinhoRepository.findByUserId(customer.getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não possui um carrinho de compras."));
 
-        if (cart.getItens() == null || cart.getItens().isEmpty()) {
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
             throw new RuntimeException("Seu carrinho está vazio!");
         }
 
@@ -137,24 +137,24 @@ public class OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal totalAmount = BigDecimal.ZERO;
 
-        for (CarrinhoDeComprasItem cartItems : cart.getItens()) {
-            ProductVariation variation = cartItems.getVariacao();
+        for (ShoppingCartItem cartItems : cart.getItems()) {
+            ProductVariation variation = cartItems.getVariation();
 
-            if (variation.getStock() < cartItems.getQuantidade()) {
+            if (variation.getStock() < cartItems.getQuantity()) {
                 throw new RuntimeException("Estoque insuficiente para o produto: " + variation.getName());
             }
 
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(variation.getProduct());
-            orderItem.setQuantity(cartItems.getQuantidade());
+            orderItem.setQuantity(cartItems.getQuantity());
             orderItem.setUnitPrice(variation.getPrice());
             orderItem.setOrder(order);
             orderItems.add(orderItem);
 
-            variation.setStock(variation.getStock() - cartItems.getQuantidade());
+            variation.setStock(variation.getStock() - cartItems.getQuantity());
             productVariationRepository.save(variation);
 
-            totalAmount = totalAmount.add(variation.getPrice().multiply(new BigDecimal(cartItems.getQuantidade())));
+            totalAmount = totalAmount.add(variation.getPrice().multiply(new BigDecimal(cartItems.getQuantity())));
         }
 
         order.setItems(orderItems);
@@ -162,7 +162,7 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        cart.getItens().clear();
+        cart.getItems().clear();
         carrinhoRepository.save(cart);
 
         return new OrderResponseDTO(savedOrder);

@@ -1,9 +1,9 @@
 package br.com.iff.marketplace.product.controller;
 
-import br.com.iff.marketplace.controller.dto.AvaliacaoResponseDTO;
+import br.com.iff.marketplace.review.dto.ReviewResponseDTO;
 import br.com.iff.marketplace.product.dto.ProductResponseDTO;
 import br.com.iff.marketplace.product.service.ProductService;
-import br.com.iff.marketplace.service.ReviewService;
+import br.com.iff.marketplace.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,9 +44,9 @@ public class ProductPublicController {
     // Mais tarde criar uma classe ReviewController que é responsabilidade das avalaiacões
     // Endpoint para lsitar todas as avaliações de um produto específico
     @GetMapping("/{productId}/reviews")
-    public ResponseEntity<List<AvaliacaoResponseDTO>> listProductReviews(@PathVariable Long productId) {
+    public ResponseEntity<List<ReviewResponseDTO>> listProductReviews(@PathVariable Long productId) {
 
-        List<AvaliacaoResponseDTO> reviews = reviewService.listarPorProduto(productId);
+        List<ReviewResponseDTO> reviews = reviewService.listarPorProduto(productId);
 
         return ResponseEntity.ok(reviews);
     }

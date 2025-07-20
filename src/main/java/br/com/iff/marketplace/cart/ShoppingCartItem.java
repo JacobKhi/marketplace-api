@@ -1,4 +1,4 @@
-package br.com.iff.marketplace.model;
+package br.com.iff.marketplace.cart;
 
 import br.com.iff.marketplace.product.ProductVariation;
 import jakarta.persistence.*;
@@ -8,20 +8,20 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-public class CarrinhoDeComprasItem {
+public class ShoppingCartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer quantidade;
+    private Integer quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "variacao_id")
-    private ProductVariation variacao;
+    private ProductVariation variation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "carrinho_id")
-    private CarrinhoDeCompras carrinho;
+    private ShoppingCart cart;
 
 }
