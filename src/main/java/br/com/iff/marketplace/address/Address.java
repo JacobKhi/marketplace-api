@@ -1,4 +1,4 @@
-package br.com.iff.marketplace.model;
+package br.com.iff.marketplace.address;
 
 import br.com.iff.marketplace.user.User;
 import jakarta.persistence.Entity;
@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-public class Endereco {
+public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

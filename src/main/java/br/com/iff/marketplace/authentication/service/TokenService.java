@@ -1,4 +1,4 @@
-package br.com.iff.marketplace.service;
+package br.com.iff.marketplace.authentication.service;
 
 import br.com.iff.marketplace.user.User;
 import io.jsonwebtoken.Jwts;
@@ -54,4 +54,5 @@ public class TokenService {
     private Instant genExpirationDate() {
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }
+
 }

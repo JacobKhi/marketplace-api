@@ -1,6 +1,6 @@
 package br.com.iff.marketplace.config;
 
-import br.com.iff.marketplace.service.AuthenticationService;
+import br.com.iff.marketplace.authentication.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

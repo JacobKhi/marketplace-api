@@ -1,7 +1,7 @@
 package br.com.iff.marketplace.config;
 
 import br.com.iff.marketplace.user.repository.UserRepository;
-import br.com.iff.marketplace.service.TokenService;
+import br.com.iff.marketplace.authentication.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

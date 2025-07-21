@@ -1,6 +1,6 @@
 package br.com.iff.marketplace.user.controller;
 
-import br.com.iff.marketplace.controller.dto.UserResponseDTO;
+import br.com.iff.marketplace.user.dto.UserResponseDTO;
 import br.com.iff.marketplace.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

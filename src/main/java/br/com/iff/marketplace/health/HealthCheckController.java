@@ -1,4 +1,4 @@
-package br.com.iff.marketplace.controller;
+package br.com.iff.marketplace.health;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

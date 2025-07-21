@@ -1,4 +1,4 @@
-package br.com.iff.marketplace.service;
+package br.com.iff.marketplace.authentication.service;
 
 import br.com.iff.marketplace.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

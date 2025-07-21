@@ -12,6 +12,8 @@ public class ProductVariationResponseDTO {
 
     private String name;
 
+    private String sku;
+
     private BigDecimal price;
 
     private Integer stock;
@@ -20,6 +22,7 @@ public class ProductVariationResponseDTO {
 
         this.id = productVariation.getId();
         this.name = productVariation.getName();
+        this.sku = productVariation.getSku();
         this.price = productVariation.getPrice();
         this.stock = productVariation.getStock();
 

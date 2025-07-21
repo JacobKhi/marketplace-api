@@ -1,7 +1,7 @@
 package br.com.iff.marketplace.product.dto;
 
 import br.com.iff.marketplace.category.dto.CategoryResponseDTO;
-import br.com.iff.marketplace.controller.dto.UserResponseDTO;
+import br.com.iff.marketplace.user.dto.UserResponseDTO;
 import br.com.iff.marketplace.product.Product;
 import lombok.Data;
 
