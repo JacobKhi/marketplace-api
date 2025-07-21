@@ -10,11 +10,12 @@ import org.springframework.data.jpa.repository.Query;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
     UserDetails findByEmail(String email);
 
-    User findUsuarioByEmail(String email);
+    User findUserByEmail(String email);
 
-    User findBySenhaResetToken(String token);
+    User findByPasswordResetToken(String token);
 
     @Query(value = "SELECT * FROM usuario WHERE id = :id", nativeQuery = true)
     Optional<User> findByIdEvenIfInactive(Long id);

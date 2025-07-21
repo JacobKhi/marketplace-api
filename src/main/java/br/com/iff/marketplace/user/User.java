@@ -42,8 +42,8 @@ public class User implements UserDetails {
     private UserProfiles profile;
 
     // Campos para a funcionalidade de Reset de Senha
-    private String senhaResetToken;
-    private LocalDateTime senhaResetTokenExpiracao;
+    private String passwordResetToken;
+    private LocalDateTime passwordResetTokenExpiration;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

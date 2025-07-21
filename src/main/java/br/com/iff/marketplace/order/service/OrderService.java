@@ -202,7 +202,7 @@ public class OrderService {
 
         // Verifica se pelo menos 1 item do pedido é do vendedor
         boolean isSellerOfAnItem = order.getItems().stream()
-                .anyMatch(item -> item.getProduct().getId().equals(sellerId));
+                .anyMatch(item -> item.getProduct().getSeller().getId().equals(sellerId));
 
         if (!isSellerOfAnItem) {
             throw new RuntimeException("Acesso negado: Você não é o vendedor de nenhum item neste pedido.");

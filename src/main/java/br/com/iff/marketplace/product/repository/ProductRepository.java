@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
-    List<Product> findBySellerId(Long vendedorId);
+    List<Product> findBySellerId(Long sellerId);
 }

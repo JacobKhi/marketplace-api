@@ -20,7 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User salvarUsuario(User user) {
+    public User saveUser(User user) {
         String senhaOriginal = user.getPassword();
 
         String senhaCriptografada = passwordEncoder.encode(senhaOriginal);
@@ -45,7 +45,7 @@ public class UserService {
     }
 
     public String generatePasswordResetToken(String email) {
-        User user = userRepository.findUsuarioByEmail(email);
+        User user = userRepository.findUserByEmail(email);
 
         if (user == null) {
             throw new RuntimeException("Usuário não encontrado com o e-mail fornecido.");
@@ -53,8 +53,8 @@ public class UserService {
 
         String token = UUID.randomUUID().toString();
 
-        user.setSenhaResetToken(token);
-        user.setSenhaResetTokenExpiracao(LocalDateTime.now().plusMinutes(30));
+        user.setPasswordResetToken(token);
+        user.setPasswordResetTokenExpiration(LocalDateTime.now().plusMinutes(30));
 
         userRepository.save(user);
 
@@ -62,17 +62,17 @@ public class UserService {
     }
 
     public void resetPassword(String token, String novaSenha) {
-        User user = userRepository.findBySenhaResetToken(token);
+        User user = userRepository.findByPasswordResetToken(token);
 
-        if (user == null || user.getSenhaResetTokenExpiracao().isBefore(LocalDateTime.now())) {
+        if (user == null || user.getPasswordResetTokenExpiration().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Token inválido ou expirado.");
         }
 
         String senhaCriptografada = passwordEncoder.encode(novaSenha);
         user.setPassword(senhaCriptografada);
 
-        user.setSenhaResetToken(null);
-        user.setSenhaResetTokenExpiracao(null);
+        user.setPasswordResetToken(null);
+        user.setPasswordResetTokenExpiration(null);
 
         userRepository.save(user);
     }
