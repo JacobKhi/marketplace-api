@@ -20,12 +20,17 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String cep;
-    private String rua;
-    private String numero;
-    private String complemento;
-    private String cidade;
-    private String estado;
+    private String zipCode;
+
+    private String street;
+
+    private String number;
+
+    private String complement;
+
+    private String city;
+
+    private String state;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
