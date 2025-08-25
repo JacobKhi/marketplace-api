@@ -18,8 +18,9 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-@SQLDelete(sql = "UPDATE usuario SET ativo = false WHERE id = ?")
-@Where(clause = "ativo = true")
+@Table(name = "users")
+@SQLDelete(sql = "UPDATE users SET active = false WHERE id = ?")
+@Where(clause = "active = true")
 public class User implements UserDetails {
 
     @Id

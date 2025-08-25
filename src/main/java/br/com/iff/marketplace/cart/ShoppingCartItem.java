@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
+@Table(name = "shopping_cart_itens")
 public class ShoppingCartItem {
 
     @Id
@@ -17,11 +18,11 @@ public class ShoppingCartItem {
     private Integer quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "variacao_id")
+    @JoinColumn(name = "variation_id")
     private ProductVariation variation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "carrinho_id")
+    @JoinColumn(name = "cart_id")
     private ShoppingCart cart;
 
 }

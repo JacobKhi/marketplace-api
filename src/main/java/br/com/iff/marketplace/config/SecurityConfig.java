@@ -22,6 +22,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
+import java.util.List;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -46,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
 
+                        //.anyRequest().permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
@@ -56,7 +59,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*")); // era "Authorization", "Content-Type"
         configuration.setAllowCredentials(true);

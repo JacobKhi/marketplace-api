@@ -17,9 +17,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByPasswordResetToken(String token);
 
-    @Query(value = "SELECT * FROM usuario WHERE id = :id", nativeQuery = true)
+    @Query(value = "SELECT * FROM users WHERE id = :id", nativeQuery = true)
     Optional<User> findByIdEvenIfInactive(Long id);
 
-    @Query(value = "SELECT * FROM usuario", nativeQuery = true)
+    @Query(value = "SELECT * FROM users", nativeQuery = true)
     List<User> findAllEvenIfInactive();
 }

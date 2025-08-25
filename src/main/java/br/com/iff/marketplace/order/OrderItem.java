@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
+@Table(name = "orders_itens")
 public class OrderItem {
 
     @Id
@@ -20,10 +21,10 @@ public class OrderItem {
     private BigDecimal unitPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pedido_id")
+    @JoinColumn(name = "order_id")
     private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "produto_id")
+    @JoinColumn(name = "product_id")
     private Product product;
 }

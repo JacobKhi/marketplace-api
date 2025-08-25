@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
+@Table(name = "products_variations")
 public class ProductVariation {
 
     @Id
@@ -25,7 +26,7 @@ public class ProductVariation {
 
     // Relacionamento com o Produto pai
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "produto_id")
+    @JoinColumn(name = "product_id")
     private Product product;
 
 }

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
+@Table(name = "reviews")
 public class Review {
 
     @Id

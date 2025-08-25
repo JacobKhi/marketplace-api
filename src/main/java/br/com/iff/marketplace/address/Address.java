@@ -1,19 +1,14 @@
 package br.com.iff.marketplace.address;
 
 import br.com.iff.marketplace.user.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
+@Table(name = "addresses")
 public class Address {
 
     @Id
@@ -33,6 +28,6 @@ public class Address {
     private String state;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "user_id")
     private User user;
 }

@@ -13,7 +13,7 @@ import br.com.iff.marketplace.order.enums.OrderStatus;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-@Table(name = "orders") // Não pode ser order pois ela é uma palavra reservada do SQL
+@Table(name = "orders")
 public class Order {
 
     @Id
@@ -32,7 +32,7 @@ public class Order {
     private String trackingCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comprador_id")
+    @JoinColumn(name = "customer_id")
     private User customer;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

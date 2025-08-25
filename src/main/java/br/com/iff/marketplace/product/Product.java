@@ -2,24 +2,16 @@ package br.com.iff.marketplace.product;
 
 import br.com.iff.marketplace.category.Category;
 import br.com.iff.marketplace.user.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.OneToMany;
 
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
+@Table(name = "products")
 public class Product {
 
     @Id
@@ -37,12 +29,12 @@ public class Product {
 
     // Relacionamento com Categoria
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_id")
+    @JoinColumn(name = "category_id")
     private Category category;
 
     // Relacionamento com Usuario (Vendedor)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vendedor_id")
+    @JoinColumn(name = "seller_id")
     private User seller;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
