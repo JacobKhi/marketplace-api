@@ -2,6 +2,7 @@ package br.com.iff.marketplace.user.service;
 
 import br.com.iff.marketplace.authentication.dto.CreateUserDTO;
 import br.com.iff.marketplace.user.User;
+import br.com.iff.marketplace.user.enums.SellerStatus;
 import br.com.iff.marketplace.user.enums.UserProfiles;
 import br.com.iff.marketplace.user.repository.UserRepository;
 import br.com.iff.marketplace.user.dto.UpdateUserDTO;
@@ -112,5 +113,16 @@ public class UserService {
         }
     }
 
+    public void requestSellerProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+
+        if (user.getProfile() == UserProfiles.SELLER || user.getSellerStatus() == SellerStatus.PENDING_APPROVAL) {
+            throw new IllegalStateException("Este usuário já é um vendedor ou já possui uma solicitação pendente.");
+        }
+
+        user.setSellerStatus(SellerStatus.PENDING_APPROVAL);
+        userRepository.save(user);
+    }
 
 }

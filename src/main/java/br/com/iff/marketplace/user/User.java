@@ -1,5 +1,6 @@
 package br.com.iff.marketplace.user;
 
+import br.com.iff.marketplace.user.enums.SellerStatus;
 import br.com.iff.marketplace.user.enums.UserProfiles;
 
 import jakarta.persistence.*;
@@ -50,6 +51,9 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + profile.name()));
     }
+
+    @Enumerated(EnumType.STRING)
+    private SellerStatus sellerStatus = SellerStatus.NONE;
 
     @Override
     public boolean isEnabled() {return this.active;}

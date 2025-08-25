@@ -38,4 +38,13 @@ public class UserProfileController {
         return ResponseEntity.ok(new UserResponseDTO(updatedUser));
     }
 
+    @PostMapping("/become-seller")
+    public ResponseEntity<String> requestSellerProfile(Authentication authentication) {
+        User currentUser = (User) authentication.getPrincipal();
+
+        userService.requestSellerProfile(currentUser.getId());
+
+        return ResponseEntity.ok("Sua solicitação para se tornar um vendedor foi enviada e está aguardando análise.");
+    }
+
 }
