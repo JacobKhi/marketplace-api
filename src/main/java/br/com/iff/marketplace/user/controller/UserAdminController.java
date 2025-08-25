@@ -50,14 +50,14 @@ public class UserAdminController {
     }
 
     // Endpoint para APROVAR uma solicitação de vendedor
-    @PostMapping("/users/{userId}/approve-seller")
+    @PostMapping("/{userId}/approve-seller")
     public ResponseEntity<String> approveSellerRequest(@PathVariable Long userId) {
         userService.approveSellerRequest(userId);
         return ResponseEntity.ok("Solicitação de vendedor para o usuário " + userId + " foi aprovada com sucesso.");
     }
 
     // Endpoint para REJEITAR uma solicitação de vendedor
-    @PostMapping("/users/{userId}/reject-seller")
+    @PostMapping("/{userId}/reject-seller")
     public ResponseEntity<String> rejectSellerRequest(@PathVariable Long userId) {
         userService.rejectSellerRequest(userId);
         return ResponseEntity.ok("Solicitação de vendedor para o usuário " + userId + " foi rejeitada.");
