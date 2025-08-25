@@ -125,4 +125,34 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void approveSellerRequest(Long userId) {
+        User user = userRepository.findByIdEvenIfInactive(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + userId));
+
+        if (user.getSellerStatus() != SellerStatus.PENDING_APPROVAL) {
+            throw new IllegalStateException("Este usuário não possui uma solicitação pendente para se tornar vendedor.");
+        }
+
+        user.setProfile(UserProfiles.SELLER);
+        user.setSellerStatus(SellerStatus.APPROVED);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void rejectSellerRequest(Long userId) {
+        User user = userRepository.findByIdEvenIfInactive(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + userId));
+
+        if (user.getSellerStatus() != SellerStatus.PENDING_APPROVAL) {
+            throw new IllegalStateException("Este usuário não possui uma solicitação pendente.");
+        }
+
+        user.setSellerStatus(SellerStatus.REJECTED);
+        userRepository.save(user);
+    }
+
+    public List<User> findPendingSellerRequests() {
+        return userRepository.findBySellerStatus(SellerStatus.PENDING_APPROVAL);
+    }
 }

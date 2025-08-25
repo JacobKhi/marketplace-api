@@ -1,6 +1,7 @@
 package br.com.iff.marketplace.user.repository;
 
 import br.com.iff.marketplace.user.User;
+import br.com.iff.marketplace.user.enums.SellerStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
@@ -22,4 +23,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT * FROM users", nativeQuery = true)
     List<User> findAllEvenIfInactive();
+
+    List<User> findBySellerStatus(SellerStatus status);
 }

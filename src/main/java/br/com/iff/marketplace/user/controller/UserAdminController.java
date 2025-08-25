@@ -40,4 +40,27 @@ public class UserAdminController {
         userService.toggleActivation(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/seller-requests")
+    public ResponseEntity<List<UserResponseDTO>> listPendingSellerRequests() {
+        List<UserResponseDTO> pendingRequests = userService.findPendingSellerRequests().stream()
+                .map(UserResponseDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(pendingRequests);
+    }
+
+    // Endpoint para APROVAR uma solicitação de vendedor
+    @PostMapping("/users/{userId}/approve-seller")
+    public ResponseEntity<String> approveSellerRequest(@PathVariable Long userId) {
+        userService.approveSellerRequest(userId);
+        return ResponseEntity.ok("Solicitação de vendedor para o usuário " + userId + " foi aprovada com sucesso.");
+    }
+
+    // Endpoint para REJEITAR uma solicitação de vendedor
+    @PostMapping("/users/{userId}/reject-seller")
+    public ResponseEntity<String> rejectSellerRequest(@PathVariable Long userId) {
+        userService.rejectSellerRequest(userId);
+        return ResponseEntity.ok("Solicitação de vendedor para o usuário " + userId + " foi rejeitada.");
+    }
+
 }
