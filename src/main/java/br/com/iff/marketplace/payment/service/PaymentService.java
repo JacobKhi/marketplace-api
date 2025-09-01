@@ -9,14 +9,16 @@ import br.com.iff.marketplace.payment.dto.PaymentResponseDTO;
 import br.com.iff.marketplace.user.User;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Charge;
-import com.stripe.param.ChargeCreateParams;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,9 +30,8 @@ public class PaymentService {
     private String stripeSecretKey;
 
     @Transactional
-    public PaymentResponseDTO processPayment(PaymentRequestDTO paymentRequest, User customer) {
-
-        Order order = orderRepository.findById(paymentRequest.getOrderId())
+    public Map<String, String> createPaymentIntent(Long orderId, User customer) {
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Pedido não encontrado!"));
 
         if (!order.getCustomer().getId().equals(customer.getId())) {
@@ -44,28 +45,39 @@ public class PaymentService {
         try {
             Stripe.apiKey = stripeSecretKey;
 
-            ChargeCreateParams params = ChargeCreateParams.builder()
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                     .setAmount(order.getTotalAmount().multiply(new BigDecimal("100")).longValue())
                     .setCurrency("brl")
-                    .setDescription("Pagamento do Pedido #" + order.getOrderNumber())
-                    .setSource(paymentRequest.getPaymentToken())
+                    .putMetadata("order_id", order.getId().toString())
+                    .setAutomaticPaymentMethods(
+                            PaymentIntentCreateParams.AutomaticPaymentMethods.builder().setEnabled(true).build()
+                    )
                     .build();
 
-            Charge charge = Charge.create(params);
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
 
-            if ("succeeded".equals(charge.getStatus())) {
-                order.setStatus(OrderStatus.PAYMENT_APPROVED);
-                orderRepository.save(order);
-            } else {
-                throw new RuntimeException("Falha no pagamento: " + charge.getFailureMessage());
-            }
-
-            return new PaymentResponseDTO(charge.getId(), charge.getStatus(), order.getOrderNumber());
+            Map<String, String> response = new HashMap<>();
+            response.put("clientSecret", paymentIntent.getClientSecret());
+            return response;
 
         } catch (StripeException e) {
-            throw new RuntimeException("Erro ao processar pagamento com Stripe: " + e.getMessage());
+            throw new RuntimeException("Erro ao criar PaymentIntent com Stripe: " + e.getMessage());
         }
     }
 
+    @Transactional
+    public void confirmOrderPayment(Long orderId, User customer) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Pedido não encontrado!"));
+
+        if (!order.getCustomer().getId().equals(customer.getId())) {
+            throw new AccessDeniedException("Você não tem permissão para confirmar este pedido.");
+        }
+
+        if (order.getStatus() == OrderStatus.PROCESSING) {
+            order.setStatus(OrderStatus.PAYMENT_APPROVED);
+            orderRepository.save(order);
+        }
+    }
 
 }

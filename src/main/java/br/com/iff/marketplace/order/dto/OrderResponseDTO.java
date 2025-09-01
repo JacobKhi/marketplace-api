@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 @Data
 public class OrderResponseDTO {
 
+    private Long id;
+
     private String orderNumber;
 
     private LocalDateTime orderDate;
@@ -24,6 +26,7 @@ public class OrderResponseDTO {
     private List<OrderItemResponseDTO> items;
 
     public OrderResponseDTO(Order pedido) {
+        this.id = pedido.getId();
         this.orderNumber = pedido.getOrderNumber();
         this.orderDate = pedido.getOrderDate();
         this.totalAmount = pedido.getTotalAmount();
