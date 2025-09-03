@@ -12,6 +12,9 @@ public class ReviewRequestDTO {
     @NotNull(message = "O id do produto não pode ser nulo")
     private Long productId;
 
+    @NotNull(message = "O id do pedido não pode ser nulo")
+    private Long orderId;
+
     @NotNull(message = "A nota não pode ser nula")
     @Min(1)
     @Max(5)

@@ -1,8 +1,8 @@
 package br.com.iff.marketplace.product.repository.specifications;
 
-import org.springframework.data.jpa.domain.Specification;
 import br.com.iff.marketplace.product.Product;
-
+import jakarta.persistence.criteria.JoinType;
+import org.springframework.data.jpa.domain.Specification;
 import java.math.BigDecimal;
 
 public class ProductSpecification {
@@ -26,16 +26,23 @@ public class ProductSpecification {
     }
 
     public static Specification<Product> priceBetween(BigDecimal minPrice, BigDecimal maxPrice) {
-        if (minPrice != null && maxPrice != null) {
-            return (root, query, builder) -> builder.between(root.get("price"), minPrice, maxPrice);
-        }
-        if (minPrice != null) {
-            return (root, query, builder) -> builder.greaterThanOrEqualTo(root.get("price"), minPrice);
-        }
-        if (maxPrice != null) {
-            return (root, query, builder) -> builder.lessThanOrEqualTo(root.get("price"), maxPrice);
-        }
-        return null;
-    }
+        return (root, query, builder) -> {
+            if (query != null) {
+                query.distinct(true);
+            }
 
+            var variations = root.join("variations", JoinType.INNER);
+
+            if (minPrice != null && maxPrice != null) {
+                return builder.between(variations.get("price"), minPrice, maxPrice);
+            }
+            if (minPrice != null) {
+                return builder.greaterThanOrEqualTo(variations.get("price"), minPrice);
+            }
+            if (maxPrice != null) {
+                return builder.lessThanOrEqualTo(variations.get("price"), maxPrice);
+            }
+            return null;
+        };
+    }
 }

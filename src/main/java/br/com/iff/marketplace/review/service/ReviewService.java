@@ -35,6 +35,13 @@ public class ReviewService {
         Product foundProduct = productRepository.findById(reviewDTO.getProductId())
                 .orElseThrow(() -> new NotFoundException("Produto não encontrado"));
 
+        Order foundOrder = orderRepository.findById(reviewDTO.getOrderId())
+                .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
+
+        if (!foundOrder.getCustomer().getId().equals(customer.getId())) {
+            throw new AccessDeniedException("Você só pode avaliar pedidos que você fez.");
+        }
+
         if (reviewRepository.existsByCustomerIdAndProductId(customer.getId(), foundProduct.getId())) {
             throw new IllegalStateException("Voce já avaliou esse produto");
         }
@@ -45,6 +52,7 @@ public class ReviewService {
         newReview.setReviewDate(LocalDateTime.now());
         newReview.setProduct(foundProduct);
         newReview.setCustomer(customer);
+        newReview.setOrder(foundOrder);
 
         Review savedReview = reviewRepository.save(newReview);
 
