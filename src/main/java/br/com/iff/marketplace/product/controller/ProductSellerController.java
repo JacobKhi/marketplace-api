@@ -1,7 +1,9 @@
 package br.com.iff.marketplace.product.controller;
 
 import br.com.iff.marketplace.product.dto.*;
+import br.com.iff.marketplace.product.service.ProductManagementService;
 import br.com.iff.marketplace.product.service.ProductService;
+import br.com.iff.marketplace.product.service.ProductVariationService;
 import br.com.iff.marketplace.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,14 +23,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductSellerController {
 
-    private final ProductService productService;
+    private final ProductManagementService productManagementService;
+    private final ProductVariationService productVariationService;
+
+    // --- Endpoints de Produto ---
 
     @GetMapping
     public ResponseEntity<Page<ProductResponseDTO>> listMyProducts(
             @AuthenticationPrincipal User seller,
             Pageable pageable) {
 
-        Page<ProductResponseDTO> productsList = productService.findProductBySeller(seller.getId(), pageable);
+        Page<ProductResponseDTO> productsList = productManagementService.findProductBySeller(seller.getId(), pageable);
         return ResponseEntity.ok(productsList);
     }
 
@@ -37,7 +42,7 @@ public class ProductSellerController {
             @RequestBody @Valid ProductRequestDTO productDTO,
             @AuthenticationPrincipal User seller) {
 
-        ProductResponseDTO newProduct = productService.createProduct(productDTO, seller.getId());
+        ProductResponseDTO newProduct = productManagementService.createProduct(productDTO, seller.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
 
@@ -47,7 +52,7 @@ public class ProductSellerController {
             @RequestBody @Valid UpdateProductDTO updateDTO,
             @AuthenticationPrincipal User seller) {
 
-        ProductResponseDTO updatedProduct = productService.updateProduct(productId, updateDTO, seller.getId());
+        ProductResponseDTO updatedProduct = productManagementService.updateProduct(productId, updateDTO, seller.getId());
         return ResponseEntity.ok(updatedProduct);
     }
 
@@ -56,9 +61,11 @@ public class ProductSellerController {
             @PathVariable Long productId,
             @AuthenticationPrincipal User seller) {
 
-        productService.deleteProduct(productId, seller.getId());
+        productManagementService.deleteProduct(productId, seller.getId());
         return ResponseEntity.noContent().build();
     }
+
+    // --- Endpoints de Variação ---
 
     @PostMapping("/{productId}/variation")
     public ResponseEntity<ProductVariationResponseDTO> addVariation(
@@ -66,7 +73,7 @@ public class ProductSellerController {
             @RequestBody @Valid ProductVariationRequestDTO variationDTO,
             @AuthenticationPrincipal User seller) {
 
-        ProductVariationResponseDTO newVariation = productService.addVariation(productId, variationDTO, seller.getId());
+        ProductVariationResponseDTO newVariation = productVariationService.addVariation(productId, variationDTO, seller.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(newVariation);
     }
 
@@ -77,7 +84,7 @@ public class ProductSellerController {
             @RequestBody @Valid ProductVariationRequestDTO variationDTO,
             @AuthenticationPrincipal User seller) {
 
-        ProductVariationResponseDTO updatedVariation = productService.updateVariation(productId, variationId, variationDTO, seller.getId());
+        ProductVariationResponseDTO updatedVariation = productVariationService.updateVariation(productId, variationId, variationDTO, seller.getId());
         return ResponseEntity.ok(updatedVariation);
     }
 
@@ -87,7 +94,7 @@ public class ProductSellerController {
             @PathVariable Long variationId,
             @AuthenticationPrincipal User seller) {
 
-        productService.deleteVariation(productId, variationId, seller.getId());
+        productVariationService.deleteVariation(productId, variationId, seller.getId());
         return ResponseEntity.noContent().build();
     }
 

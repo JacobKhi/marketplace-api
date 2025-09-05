@@ -1,5 +1,6 @@
 package br.com.iff.marketplace.product.controller;
 
+import br.com.iff.marketplace.product.service.ProductSearchService;
 import br.com.iff.marketplace.review.dto.ReviewResponseDTO;
 import br.com.iff.marketplace.product.dto.ProductResponseDTO;
 import br.com.iff.marketplace.product.service.ProductService;
@@ -18,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductPublicController {
     
-    private final ProductService productService;
+    private final ProductSearchService productSearchService;
 
     @GetMapping
     public ResponseEntity<Page<ProductResponseDTO>> listAllProducts(
@@ -28,14 +29,14 @@ public class ProductPublicController {
             @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
             Pageable pageable) {
 
-        Page<ProductResponseDTO> productsPage = productService.searchProducts(name, categoryId, minPrice, maxPrice, pageable);
+        Page<ProductResponseDTO> productsPage = productSearchService.searchProducts(name, categoryId, minPrice, maxPrice, pageable);
         return ResponseEntity.ok(productsPage);
     }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponseDTO> findProductById(@PathVariable Long productId) {
 
-        ProductResponseDTO product = productService.findProductById(productId);
+        ProductResponseDTO product = productSearchService.findProductById(productId);
         return ResponseEntity.ok(product);
     }
 

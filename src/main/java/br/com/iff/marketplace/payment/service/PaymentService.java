@@ -4,8 +4,6 @@ import br.com.iff.marketplace.exception.NotFoundException;
 import br.com.iff.marketplace.order.Order;
 import br.com.iff.marketplace.order.enums.OrderStatus;
 import br.com.iff.marketplace.order.repository.OrderRepository;
-import br.com.iff.marketplace.payment.dto.PaymentRequestDTO;
-import br.com.iff.marketplace.payment.dto.PaymentResponseDTO;
 import br.com.iff.marketplace.user.User;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
