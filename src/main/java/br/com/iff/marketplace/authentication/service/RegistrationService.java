@@ -19,6 +19,10 @@ public class RegistrationService {
     @Transactional
     public User createUser(CreateUserDTO userDTO) {
 
+        if (userRepository.findByEmail(userDTO.getEmail()) != null) {
+            throw new IllegalStateException("O e-mail informado já está em uso.");
+        }
+
         User newUser = new User();
         newUser.setName(userDTO.getName());
         newUser.setEmail(userDTO.getEmail());

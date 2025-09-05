@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -21,22 +22,18 @@ public class PaymentController {
     @PostMapping("/create-payment-intent/{orderId}")
     public ResponseEntity<Map<String, String>> createPaymentIntent(
             @PathVariable Long orderId,
-            Authentication authentication) {
+            @AuthenticationPrincipal User customer) {
 
-        User customer = (User) authentication.getPrincipal();
         Map<String, String> paymentIntentInfo = paymentService.createPaymentIntent(orderId, customer);
-
         return ResponseEntity.ok(paymentIntentInfo);
     }
 
     @PostMapping("/confirm-order/{orderId}")
     public ResponseEntity<Void> confirmOrder(
             @PathVariable Long orderId,
-            Authentication authentication) {
+            @AuthenticationPrincipal User customer) {
 
-        User customer = (User) authentication.getPrincipal();
         paymentService.confirmOrderPayment(orderId, customer);
-
         return ResponseEntity.ok().build();
     }
 
