@@ -27,16 +27,16 @@ public class OrderResponseDTO {
 
     private List<OrderItemResponseDTO> items;
 
-    public OrderResponseDTO(Order pedido) {
-        this.id = pedido.getId();
-        this.orderNumber = pedido.getOrderNumber();
-        this.orderDate = pedido.getOrderDate();
-        this.totalAmount = pedido.getTotalAmount();
-        this.status = pedido.getStatus();
-        this.customerName = pedido.getCustomer().getName();
-        this.trackingCode = pedido.getTrackingCode();
+    public OrderResponseDTO(Order order) {
+        this.id = order.getId();
+        this.orderNumber = order.getOrderNumber();
+        this.orderDate = order.getOrderDate();
+        this.totalAmount = order.getTotalAmount();
+        this.status = order.getStatus();
+        this.customerName = order.getCustomer().getName();
+        this.trackingCode = order.getTrackingCode();
 
-        this.items = pedido.getItems().stream()
+        this.items = order.getItems().stream()
                 .map(OrderItemResponseDTO::new)
                 .collect(Collectors.toList());
     }
