@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 
@@ -46,7 +48,11 @@ public class ProductSearchService {
             spec = spec.and(ProductSpecification.priceBetween(minPrice, maxPrice));
         }
 
-        Page<Product> productsPage = productRepository.findAll(spec, pageable);
+        Sort sponsoredSort = Sort.by(Sort.Direction.DESC, "sponsoredAd");
+        Sort finalSort = sponsoredSort.and(pageable.getSort());
+        Pageable finalPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), finalSort);
+
+        Page<Product> productsPage = productRepository.findAll(spec, finalPageable);
         return productsPage.map(ProductResponseDTO::new);
     }
 

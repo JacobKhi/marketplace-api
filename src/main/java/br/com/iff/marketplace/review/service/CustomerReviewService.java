@@ -12,6 +12,8 @@ import br.com.iff.marketplace.review.dto.UpdateReviewDTO;
 import br.com.iff.marketplace.review.repository.ReviewRepository;
 import br.com.iff.marketplace.user.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,14 @@ public class CustomerReviewService {
     private final ReviewRepository reviewRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+
+    public Page<ReviewResponseDTO> findMyReviews(
+            User customer,
+            Pageable pageable) {
+
+        Page<Review> reviewsPage = reviewRepository.findByCustomerId(customer.getId(), pageable);
+        return reviewsPage.map(ReviewResponseDTO::new);
+    }
 
     @Transactional
     public ReviewResponseDTO createReview(

@@ -7,6 +7,8 @@ import br.com.iff.marketplace.review.service.CustomerReviewService;
 import br.com.iff.marketplace.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +22,15 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewCustomerController {
 
     private final CustomerReviewService customerReviewService;
+
+    @GetMapping("/my-reviews")
+    public ResponseEntity<Page<ReviewResponseDTO>> getMyReviews(
+            @AuthenticationPrincipal User customer,
+            Pageable pageable) {
+
+        Page<ReviewResponseDTO> myReviews = customerReviewService.findMyReviews(customer, pageable);
+        return ResponseEntity.ok(myReviews);
+    }
 
     @PostMapping
     public ResponseEntity<ReviewResponseDTO> createReview(

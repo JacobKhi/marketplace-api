@@ -23,6 +23,8 @@ public class OrderResponseDTO {
 
     private String customerName;
 
+    private String trackingCode;
+
     private List<OrderItemResponseDTO> items;
 
     public OrderResponseDTO(Order pedido) {
@@ -32,6 +34,7 @@ public class OrderResponseDTO {
         this.totalAmount = pedido.getTotalAmount();
         this.status = pedido.getStatus();
         this.customerName = pedido.getCustomer().getName();
+        this.trackingCode = pedido.getTrackingCode();
 
         this.items = pedido.getItems().stream()
                 .map(OrderItemResponseDTO::new)
