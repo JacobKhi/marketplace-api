@@ -21,6 +21,13 @@ public class ProductSellerController {
 
     private final ProductService productService;
 
+    @GetMapping
+    public ResponseEntity<List<ProductResponseDTO>> listMyProducts(@AuthenticationPrincipal User seller) {
+
+        List<ProductResponseDTO> productsList = productService.findProductBySeller(seller.getId());
+        return ResponseEntity.ok(productsList);
+    }
+
     @PostMapping
     public ResponseEntity<ProductResponseDTO> createProduct(
             @RequestBody @Valid ProductRequestDTO productDTO,
@@ -66,7 +73,7 @@ public class ProductSellerController {
             @RequestBody @Valid ProductVariationRequestDTO variationDTO,
             @AuthenticationPrincipal User seller) {
 
-        ProductVariationResponseDTO updatedVariation = productService.updateVariation(variationId, variationDTO, seller.getId());
+        ProductVariationResponseDTO updatedVariation = productService.updateVariation(productId, variationId, variationDTO, seller.getId());
         return ResponseEntity.ok(updatedVariation);
     }
 
@@ -76,14 +83,8 @@ public class ProductSellerController {
             @PathVariable Long variationId,
             @AuthenticationPrincipal User seller) {
 
-        productService.deleteVariation(variationId, seller.getId());
+        productService.deleteVariation(productId, variationId, seller.getId());
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
-    public ResponseEntity<List<ProductResponseDTO>> listMyProducts(@AuthenticationPrincipal User seller) {
-
-        List<ProductResponseDTO> productsList = productService.findProductBySeller(seller.getId());
-        return ResponseEntity.ok(productsList);
-    }
 }

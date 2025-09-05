@@ -31,20 +31,37 @@ public class ProductService {
     private final UserRepository userRepository;
     private final ProductVariationRepository productVariationRepository;
 
+    public ProductResponseDTO findProductById(Long productId) {
+
+        Product foundProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
+
+        return new ProductResponseDTO(foundProduct);
+    }
+
+    public List<ProductResponseDTO> findProductBySeller(Long sellerId) {
+
+        List<Product> products = productRepository.findBySellerId(sellerId);
+
+        return products.stream()
+                .map(ProductResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
     public ProductResponseDTO createProduct(ProductRequestDTO requestDTO, Long sellerId) {
 
-        Category categoria = categoryRepository.findById(requestDTO.getCategoryId())
+        Category category = categoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada!"));
 
-        User vendedor = userRepository.findById(sellerId)
+        User seller = userRepository.findById(sellerId)
                 .orElseThrow(() -> new RuntimeException("Vendedor não encontrado!"));
 
         Product newProduct = new Product();
         newProduct.setName(requestDTO.getName());
         newProduct.setDescription(requestDTO.getDescription());
         newProduct.setBrand(requestDTO.getBrand());
-        newProduct.setCategory(categoria);
-        newProduct.setSeller(vendedor);
+        newProduct.setCategory(category);
+        newProduct.setSeller(seller);
 
         ProductVariation variation = new ProductVariation();
         variation.setName(requestDTO.getVariationName());
@@ -52,7 +69,6 @@ public class ProductService {
         variation.setPrice(requestDTO.getPrice());
         variation.setProduct(newProduct);
 
-        // Adiciona a variacão ao produto
         newProduct.getVariations().add(variation);
 
         Product savedProduct = productRepository.save(newProduct);
@@ -91,14 +107,6 @@ public class ProductService {
         productRepository.deleteById(productId);
     }
 
-    public ProductResponseDTO findProductById(Long productId) {
-
-        Product foundProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
-
-        return new ProductResponseDTO(foundProduct);
-    }
-
     public ProductVariationResponseDTO addVariation(Long productId, ProductVariationRequestDTO variationDTO, Long sellerId) {
 
         Product rootProduct = productRepository.findById(productId)
@@ -124,10 +132,14 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductVariationResponseDTO updateVariation(Long variationId, ProductVariationRequestDTO variationDTO, Long sellerId) {
+    public ProductVariationResponseDTO updateVariation(Long productId, Long variationId, ProductVariationRequestDTO variationDTO, Long sellerId) {
 
         ProductVariation foundVariation = productVariationRepository.findById(variationId)
                 .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
+
+        if (!foundVariation.getProduct().getId().equals(productId)) {
+            throw new RuntimeException("Esta variação não pertence ao produto informado.");
+        }
 
         if (!foundVariation.getProduct().getSeller().getId().equals(sellerId)) {
             throw new RuntimeException("Acesso negado: Você só pode editar as variações de seus próprios produtos.");
@@ -139,15 +151,18 @@ public class ProductService {
         foundVariation.setStock(variationDTO.getStock());
 
         ProductVariation savedVariation = productVariationRepository.save(foundVariation);
-
         return new ProductVariationResponseDTO(savedVariation);
     }
 
     @Transactional
-    public void deleteVariation(Long variationId, Long sellerId) {
+    public void deleteVariation(Long productId, Long variationId, Long sellerId) {
 
         ProductVariation foundVariation = productVariationRepository.findById(variationId)
                 .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
+
+        if (!foundVariation.getProduct().getId().equals(productId)) {
+            throw new RuntimeException("Esta variação não pertence ao produto informado.");
+        }
 
         if (!foundVariation.getProduct().getSeller().getId().equals(sellerId)) {
             throw new RuntimeException("Acesso negado: Você só pode deletar as variações de seus próprios produtos.");
@@ -172,15 +187,6 @@ public class ProductService {
         }
 
         List<Product> products = productRepository.findAll(spec);
-
-        return products.stream()
-                .map(ProductResponseDTO::new)
-                .collect(Collectors.toList());
-    }
-
-    public List<ProductResponseDTO> findProductBySeller(Long sellerId) {
-
-        List<Product> products = productRepository.findBySellerId(sellerId);
 
         return products.stream()
                 .map(ProductResponseDTO::new)
