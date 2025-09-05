@@ -6,10 +6,10 @@ import br.com.iff.marketplace.product.repository.ProductRepository;
 import br.com.iff.marketplace.review.Review;
 import br.com.iff.marketplace.review.dto.ReviewRequestDTO;
 import br.com.iff.marketplace.review.dto.ReviewResponseDTO;
+import br.com.iff.marketplace.review.dto.UpdateReviewDTO;
 import br.com.iff.marketplace.review.repository.ReviewRepository;
 import br.com.iff.marketplace.user.User;
 import br.com.iff.marketplace.order.repository.OrderRepository;
-import br.com.iff.marketplace.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,17 +25,26 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
+    public Page<ReviewResponseDTO> listByProducts(
+            Long ProductId,
+            Pageable pageable) {
+
+        Page<Review> reviewsPage = reviewRepository.findByProductId(ProductId, pageable);
+        return reviewsPage.map(ReviewResponseDTO::new);
+    }
+
     @Transactional
-    public ReviewResponseDTO createReview(ReviewRequestDTO reviewDTO, User customer) {
+    public ReviewResponseDTO createReview(
+            ReviewRequestDTO reviewDTO,
+            User customer) {
 
         Product foundProduct = productRepository.findById(reviewDTO.getProductId())
-                .orElseThrow(() -> new NotFoundException("Produto não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Produto de ID " + reviewDTO.getProductId() + " não encontrado"));
 
         Order foundOrder = orderRepository.findById(reviewDTO.getOrderId())
-                .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Pedido de ID " + reviewDTO.getOrderId() + " não encontrado"));
 
         if (!foundOrder.getCustomer().getId().equals(customer.getId())) {
             throw new AccessDeniedException("Você só pode avaliar pedidos que você fez.");
@@ -43,6 +52,13 @@ public class ReviewService {
 
         if (reviewRepository.existsByCustomerIdAndProductId(customer.getId(), foundProduct.getId())) {
             throw new IllegalStateException("Voce já avaliou esse produto");
+        }
+
+        boolean productInOrder = foundOrder.getItems().stream()
+                .anyMatch(item -> item.getProduct().getId().equals(foundProduct.getId()));
+
+        if (!productInOrder) {
+            throw new IllegalStateException("O produto informado não faz parte do pedido especificado.");
         }
 
         Review newReview = new Review();
@@ -59,10 +75,49 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewResponseDTO addSellerResponse(Long reviewId, String response, User seller) {
+    public ReviewResponseDTO updateReview(
+            Long reviewId,
+            UpdateReviewDTO reviewDTO,
+            User customer) {
 
         Review foundReview = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new NotFoundException("Avalicão não encontrada"));
+                .orElseThrow(() -> new NotFoundException("Avaliação não encontrada"));
+
+        if (!foundReview.getCustomer().getId().equals(customer.getId())) {
+            throw new AccessDeniedException("Você não tem permissão para editar esta avaliação.");
+        }
+
+        foundReview.setRating(reviewDTO.getRating());
+        foundReview.setComment(reviewDTO.getComment());
+        foundReview.setReviewDate(LocalDateTime.now());
+
+        Review savedReview = reviewRepository.save(foundReview);
+        return new ReviewResponseDTO(savedReview);
+    }
+
+    @Transactional
+    public void deleteReview(
+            Long reviewId,
+            User customer) {
+
+        Review foundReview = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException("Avaliação de id " + reviewId + " não encontrada"));
+
+        if (!foundReview.getCustomer().getId().equals(customer.getId())) {
+            throw new AccessDeniedException("Você não tem permissão para deletar esta avaliação.");
+        }
+
+        reviewRepository.delete(foundReview);
+    }
+
+    @Transactional
+    public ReviewResponseDTO addSellerResponse(
+            Long reviewId,
+            String response,
+            User seller) {
+
+        Review foundReview = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException("Avalicão de ID " + reviewId + " não encontrada"));
 
         if(!foundReview.getProduct().getSeller().getId().equals(seller.getId())) {
             throw new AccessDeniedException("Você só pode responder avaliações de seus próprios produtos");
@@ -72,16 +127,46 @@ public class ReviewService {
         foundReview.setResponseDate(LocalDateTime.now());
 
         Review savedReview = reviewRepository.save(foundReview);
-
         return new ReviewResponseDTO(savedReview);
     }
 
-    public Page<ReviewResponseDTO> listByProducts(
-            Long ProductId,
-            Pageable pageable) {
+    @Transactional
+    public ReviewResponseDTO updateSellerResponse(
+            Long reviewId,
+            String newResponse,
+            User seller) {
 
-        Page<Review> reviewsPage = reviewRepository.findByProductId(ProductId, pageable);
-        return reviewsPage.map(ReviewResponseDTO::new);
+        Review foundReview = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException("Avalicão de ID " + reviewId + " não encontrada"));
+
+        if (!foundReview.getProduct().getSeller().getId().equals(seller.getId())) {
+            throw new AccessDeniedException("Você não tem permissão para editar a resposta desta avaliação.");
+        }
+
+        foundReview.setSellerResponse(newResponse);
+        foundReview.setResponseDate(LocalDateTime.now());
+
+        Review savedReview = reviewRepository.save(foundReview);
+        return new ReviewResponseDTO(savedReview);
+    }
+
+    @Transactional
+    public ReviewResponseDTO deleteSellerResponse(
+            Long reviewId,
+            User seller) {
+
+        Review foundReview = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException("Avaliação de id " + reviewId + " não encontrada"));
+
+        if (!foundReview.getProduct().getSeller().getId().equals(seller.getId())) {
+            throw new AccessDeniedException("Você não tem permissão para modificar a resposta desta avaliação.");
+        }
+
+        foundReview.setSellerResponse(null);
+        foundReview.setResponseDate(null);
+
+        Review savedReview = reviewRepository.save(foundReview);
+        return new ReviewResponseDTO(savedReview);
     }
 
 }

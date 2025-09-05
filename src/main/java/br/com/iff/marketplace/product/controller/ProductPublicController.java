@@ -38,4 +38,5 @@ public class ProductPublicController {
         ProductResponseDTO product = productService.findProductById(productId);
         return ResponseEntity.ok(product);
     }
+
 }

@@ -1,6 +1,5 @@
 package br.com.iff.marketplace.review.controller;
 
-import br.com.iff.marketplace.review.Review;
 import br.com.iff.marketplace.review.dto.ReviewResponseDTO;
 import br.com.iff.marketplace.review.dto.SellerResponseRequestDTO;
 import br.com.iff.marketplace.review.service.ReviewService;
@@ -9,7 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -26,12 +25,29 @@ public class ReviewSellerController {
     public ResponseEntity<ReviewResponseDTO> addSellerResponse(
             @PathVariable Long reviewId,
             @RequestBody @Valid SellerResponseRequestDTO sellerResponseDTO,
-            Authentication authentication) {
+            @AuthenticationPrincipal User seller) {
 
-        User seller = (User) authentication.getPrincipal();
         ReviewResponseDTO updateReview = reviewService.addSellerResponse(reviewId, sellerResponseDTO.getResponse(), seller);
-
         return ResponseEntity.ok(updateReview);
+    }
+
+    @PutMapping("/{reviewId}/response")
+    public ResponseEntity<ReviewResponseDTO> updateSellerResponse(
+            @PathVariable Long reviewId,
+            @RequestBody @Valid SellerResponseRequestDTO sellerResponseDTO,
+            @AuthenticationPrincipal User seller) {
+
+        ReviewResponseDTO updatedReview = reviewService.updateSellerResponse(reviewId, sellerResponseDTO.getResponse(), seller);
+        return ResponseEntity.ok(updatedReview);
+    }
+
+    @DeleteMapping("/{reviewId}/response")
+    public ResponseEntity<ReviewResponseDTO> deleteSellerResponse(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal User seller) {
+
+        ReviewResponseDTO updatedReview = reviewService.deleteSellerResponse(reviewId, seller);
+        return ResponseEntity.ok(updatedReview);
     }
 
 }
