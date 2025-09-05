@@ -11,14 +11,13 @@ import br.com.iff.marketplace.user.User;
 import br.com.iff.marketplace.order.repository.OrderRepository;
 import br.com.iff.marketplace.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import br.com.iff.marketplace.exception.NotFoundException;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -77,12 +76,12 @@ public class ReviewService {
         return new ReviewResponseDTO(savedReview);
     }
 
-    public List<ReviewResponseDTO> listarPorProduto(Long produtoId) {
-        List<Review> avaliacoes = reviewRepository.findByProductId(produtoId);
+    public Page<ReviewResponseDTO> listByProducts(
+            Long ProductId,
+            Pageable pageable) {
 
-        return avaliacoes.stream()
-                .map(ReviewResponseDTO::new)
-                .collect(Collectors.toList());
+        Page<Review> reviewsPage = reviewRepository.findByProductId(ProductId, pageable);
+        return reviewsPage.map(ReviewResponseDTO::new);
     }
 
 }

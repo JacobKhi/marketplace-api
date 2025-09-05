@@ -5,6 +5,8 @@ import br.com.iff.marketplace.product.service.ProductService;
 import br.com.iff.marketplace.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,9 +24,11 @@ public class ProductSellerController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<ProductResponseDTO>> listMyProducts(@AuthenticationPrincipal User seller) {
+    public ResponseEntity<Page<ProductResponseDTO>> listMyProducts(
+            @AuthenticationPrincipal User seller,
+            Pageable pageable) {
 
-        List<ProductResponseDTO> productsList = productService.findProductBySeller(seller.getId());
+        Page<ProductResponseDTO> productsList = productService.findProductBySeller(seller.getId(), pageable);
         return ResponseEntity.ok(productsList);
     }
 

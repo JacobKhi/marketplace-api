@@ -11,14 +11,14 @@ import br.com.iff.marketplace.category.repository.CategoryRepository;
 import br.com.iff.marketplace.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.springframework.data.jpa.domain.Specification;
 import br.com.iff.marketplace.product.repository.specifications.ProductSpecification;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 
 @Service
@@ -39,16 +39,17 @@ public class ProductService {
         return new ProductResponseDTO(foundProduct);
     }
 
-    public List<ProductResponseDTO> findProductBySeller(Long sellerId) {
+    public Page<ProductResponseDTO> findProductBySeller(
+            Long sellerId,
+            Pageable pageable) {
 
-        List<Product> products = productRepository.findBySellerId(sellerId);
-
-        return products.stream()
-                .map(ProductResponseDTO::new)
-                .collect(Collectors.toList());
+        Page<Product> products = productRepository.findBySellerId(sellerId, pageable);
+        return products.map(ProductResponseDTO::new);
     }
 
-    public ProductResponseDTO createProduct(ProductRequestDTO requestDTO, Long sellerId) {
+    public ProductResponseDTO createProduct(
+            ProductRequestDTO requestDTO,
+            Long sellerId) {
 
         Category category = categoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada!"));
@@ -72,11 +73,13 @@ public class ProductService {
         newProduct.getVariations().add(variation);
 
         Product savedProduct = productRepository.save(newProduct);
-
         return new ProductResponseDTO(savedProduct);
     }
 
-    public ProductResponseDTO updateProduct(Long productId, UpdateProductDTO updateDTO, Long sellerId) {
+    public ProductResponseDTO updateProduct(
+            Long productId,
+            UpdateProductDTO updateDTO,
+            Long sellerId) {
 
         Product foundProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
@@ -91,11 +94,12 @@ public class ProductService {
         foundProduct.setSponsoredAd(updateDTO.getSponsoredAd());
 
         Product savedProduct = productRepository.save(foundProduct);
-
         return new ProductResponseDTO(savedProduct);
     }
 
-    public void deleteProduct(Long productId, Long sellerId) {
+    public void deleteProduct(
+            Long productId,
+            Long sellerId) {
 
         Product foundProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
@@ -107,7 +111,10 @@ public class ProductService {
         productRepository.deleteById(productId);
     }
 
-    public ProductVariationResponseDTO addVariation(Long productId, ProductVariationRequestDTO variationDTO, Long sellerId) {
+    public ProductVariationResponseDTO addVariation(
+            Long productId,
+            ProductVariationRequestDTO variationDTO,
+            Long sellerId) {
 
         Product rootProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
@@ -123,16 +130,18 @@ public class ProductService {
         newVariation.setStock(variationDTO.getStock());
         newVariation.setProduct(rootProduct);
 
-        // Adiciona a variacão a lista do produto original
         rootProduct.getVariations().add(newVariation);
 
         ProductVariation savedVariation = productVariationRepository.save(newVariation);
-
         return new ProductVariationResponseDTO(savedVariation);
     }
 
     @Transactional
-    public ProductVariationResponseDTO updateVariation(Long productId, Long variationId, ProductVariationRequestDTO variationDTO, Long sellerId) {
+    public ProductVariationResponseDTO updateVariation(
+            Long productId,
+            Long variationId,
+            ProductVariationRequestDTO variationDTO,
+            Long sellerId) {
 
         ProductVariation foundVariation = productVariationRepository.findById(variationId)
                 .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
@@ -155,7 +164,10 @@ public class ProductService {
     }
 
     @Transactional
-    public void deleteVariation(Long productId, Long variationId, Long sellerId) {
+    public void deleteVariation(
+            Long productId,
+            Long variationId,
+            Long sellerId) {
 
         ProductVariation foundVariation = productVariationRepository.findById(variationId)
                 .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
@@ -171,8 +183,12 @@ public class ProductService {
         productVariationRepository.delete(foundVariation);
     }
 
-    public List<ProductResponseDTO> searchProducts(
-            String name, Long categoryId, BigDecimal minPrice, BigDecimal maxPrice) {
+    public Page<ProductResponseDTO> searchProducts(
+            String name,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Pageable pageable) {
 
         Specification<Product> spec = (root, query, builder) -> builder.conjunction();
 
@@ -186,11 +202,8 @@ public class ProductService {
             spec = spec.and(ProductSpecification.priceBetween(minPrice, maxPrice));
         }
 
-        List<Product> products = productRepository.findAll(spec);
-
-        return products.stream()
-                .map(ProductResponseDTO::new)
-                .collect(Collectors.toList());
+        Page<Product> productsPage = productRepository.findAll(spec, pageable);
+        return productsPage.map(ProductResponseDTO::new);
     }
 
 }

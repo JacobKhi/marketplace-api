@@ -22,7 +22,6 @@ public class ReviewSellerController {
 
     private final ReviewService reviewService;
 
-    // Endpoint para o VENDEDOR responder a uma avaliação
     @PostMapping("/{reviewId}/response")
     public ResponseEntity<ReviewResponseDTO> addSellerResponse(
             @PathVariable Long reviewId,

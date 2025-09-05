@@ -24,7 +24,6 @@ public class ReviewCustomerController {
 
     private final ReviewService reviewService;
 
-    // Endpoint para criar uma avaliacao
     @PostMapping
     public ResponseEntity<ReviewResponseDTO> createReview(
             @RequestBody @Valid ReviewRequestDTO reviewDTO,
