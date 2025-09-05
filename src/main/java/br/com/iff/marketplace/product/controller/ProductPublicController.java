@@ -1,10 +1,8 @@
 package br.com.iff.marketplace.product.controller;
 
 import br.com.iff.marketplace.product.service.ProductSearchService;
-import br.com.iff.marketplace.review.dto.ReviewResponseDTO;
 import br.com.iff.marketplace.product.dto.ProductResponseDTO;
 import br.com.iff.marketplace.product.service.ProductService;
-import br.com.iff.marketplace.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/products")

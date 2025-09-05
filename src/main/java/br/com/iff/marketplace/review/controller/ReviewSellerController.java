@@ -2,7 +2,7 @@ package br.com.iff.marketplace.review.controller;
 
 import br.com.iff.marketplace.review.dto.ReviewResponseDTO;
 import br.com.iff.marketplace.review.dto.SellerResponseRequestDTO;
-import br.com.iff.marketplace.review.service.ReviewService;
+import br.com.iff.marketplace.review.service.SellerReviewService;
 import br.com.iff.marketplace.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,15 +11,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/v1/seller/reviews")
 @PreAuthorize("hasRole('SELLER')")
 @RequiredArgsConstructor
 public class ReviewSellerController {
 
-    private final ReviewService reviewService;
+    private final SellerReviewService sellerReviewService;
 
     @PostMapping("/{reviewId}/response")
     public ResponseEntity<ReviewResponseDTO> addSellerResponse(
@@ -27,7 +25,7 @@ public class ReviewSellerController {
             @RequestBody @Valid SellerResponseRequestDTO sellerResponseDTO,
             @AuthenticationPrincipal User seller) {
 
-        ReviewResponseDTO updateReview = reviewService.addSellerResponse(reviewId, sellerResponseDTO.getResponse(), seller);
+        ReviewResponseDTO updateReview = sellerReviewService.addSellerResponse(reviewId, sellerResponseDTO.getResponse(), seller);
         return ResponseEntity.ok(updateReview);
     }
 
@@ -37,7 +35,7 @@ public class ReviewSellerController {
             @RequestBody @Valid SellerResponseRequestDTO sellerResponseDTO,
             @AuthenticationPrincipal User seller) {
 
-        ReviewResponseDTO updatedReview = reviewService.updateSellerResponse(reviewId, sellerResponseDTO.getResponse(), seller);
+        ReviewResponseDTO updatedReview = sellerReviewService.updateSellerResponse(reviewId, sellerResponseDTO.getResponse(), seller);
         return ResponseEntity.ok(updatedReview);
     }
 
@@ -46,7 +44,7 @@ public class ReviewSellerController {
             @PathVariable Long reviewId,
             @AuthenticationPrincipal User seller) {
 
-        ReviewResponseDTO updatedReview = reviewService.deleteSellerResponse(reviewId, seller);
+        ReviewResponseDTO updatedReview = sellerReviewService.deleteSellerResponse(reviewId, seller);
         return ResponseEntity.ok(updatedReview);
     }
 

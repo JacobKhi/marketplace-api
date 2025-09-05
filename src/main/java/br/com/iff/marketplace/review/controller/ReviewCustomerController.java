@@ -3,7 +3,7 @@ package br.com.iff.marketplace.review.controller;
 import br.com.iff.marketplace.review.dto.ReviewRequestDTO;
 import br.com.iff.marketplace.review.dto.ReviewResponseDTO;
 import br.com.iff.marketplace.review.dto.UpdateReviewDTO;
-import br.com.iff.marketplace.review.service.ReviewService;
+import br.com.iff.marketplace.review.service.CustomerReviewService;
 import br.com.iff.marketplace.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ReviewCustomerController {
 
-    private final ReviewService reviewService;
+    private final CustomerReviewService customerReviewService;
 
     @PostMapping
     public ResponseEntity<ReviewResponseDTO> createReview(
             @RequestBody @Valid ReviewRequestDTO reviewDTO,
             @AuthenticationPrincipal User customer) {
 
-        ReviewResponseDTO novaReview = reviewService.createReview(reviewDTO, customer);
+        ReviewResponseDTO novaReview = customerReviewService.createReview(reviewDTO, customer);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaReview);
     }
 
@@ -36,7 +36,7 @@ public class ReviewCustomerController {
             @RequestBody @Valid UpdateReviewDTO reviewDTO,
             @AuthenticationPrincipal User customer) {
 
-        ReviewResponseDTO updatedReview = reviewService.updateReview(reviewId, reviewDTO, customer);
+        ReviewResponseDTO updatedReview = customerReviewService.updateReview(reviewId, reviewDTO, customer);
         return ResponseEntity.ok(updatedReview);
     }
 
@@ -45,7 +45,7 @@ public class ReviewCustomerController {
             @PathVariable Long reviewId,
             @AuthenticationPrincipal User customer) {
 
-        reviewService.deleteReview(reviewId, customer);
+        customerReviewService.deleteReview(reviewId, customer);
         return ResponseEntity.noContent().build();
     }
 

@@ -1,7 +1,7 @@
 package br.com.iff.marketplace.review.controller;
 
 import br.com.iff.marketplace.review.dto.ReviewResponseDTO;
-import br.com.iff.marketplace.review.service.ReviewService;
+import br.com.iff.marketplace.review.service.ReviewQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,14 +16,14 @@ import org.springframework.data.domain.Pageable;
 @RequiredArgsConstructor
 public class ReviewPublicController {
 
-    private final ReviewService reviewService;
+    private final ReviewQueryService publicReviewService;
 
     @GetMapping("/products/{productId}/reviews")
     public ResponseEntity<Page<ReviewResponseDTO>> listProductReviews(
             @PathVariable Long productId,
             Pageable pageable) {
 
-        Page<ReviewResponseDTO> reviews = reviewService.listByProducts(productId, pageable);
+        Page<ReviewResponseDTO> reviews = publicReviewService.listByProducts(productId, pageable);
         return ResponseEntity.ok(reviews);
     }
 
