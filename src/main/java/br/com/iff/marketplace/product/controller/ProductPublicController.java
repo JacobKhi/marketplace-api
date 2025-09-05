@@ -19,7 +19,6 @@ import java.util.List;
 public class ProductPublicController {
     
     private final ProductService productService;
-    private final ReviewService reviewService;
 
     @GetMapping
     public ResponseEntity<Page<ProductResponseDTO>> listAllProducts(

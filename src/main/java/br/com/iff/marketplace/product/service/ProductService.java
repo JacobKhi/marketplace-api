@@ -1,5 +1,6 @@
 package br.com.iff.marketplace.product.service;
 
+import br.com.iff.marketplace.exception.NotFoundException;
 import br.com.iff.marketplace.product.Product;
 import br.com.iff.marketplace.product.repository.ProductRepository;
 import br.com.iff.marketplace.product.ProductVariation;
@@ -52,10 +53,10 @@ public class ProductService {
             Long sellerId) {
 
         Category category = categoryRepository.findById(requestDTO.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Categoria não encontrada!"));
+                .orElseThrow(() -> new NotFoundException("Categoria com ID " + requestDTO.getCategoryId() + " não encontrada!"));
 
         User seller = userRepository.findById(sellerId)
-                .orElseThrow(() -> new RuntimeException("Vendedor não encontrado!"));
+                .orElseThrow(() -> new NotFoundException("Vendedor com ID " + sellerId  + " não encontrado!"));
 
         Product newProduct = new Product();
         newProduct.setName(requestDTO.getName());
@@ -82,7 +83,7 @@ public class ProductService {
             Long sellerId) {
 
         Product foundProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
+                .orElseThrow(() -> new NotFoundException("Produto com ID " + productId + " não encontrado!"));
 
         if (!foundProduct.getSeller().getId().equals(sellerId)) {
             throw new RuntimeException("Acesso negado: Você só pode editar seus próprios produtos.");
@@ -102,7 +103,7 @@ public class ProductService {
             Long sellerId) {
 
         Product foundProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
+                .orElseThrow(() -> new NotFoundException("Produto com ID " + productId + " não encontrado!"));
 
         if (!foundProduct.getSeller().getId().equals(sellerId)) {
             throw new RuntimeException("Acesso negado: Você só pode deletar seus próprios produtos.");
@@ -117,7 +118,7 @@ public class ProductService {
             Long sellerId) {
 
         Product rootProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
+                .orElseThrow(() -> new NotFoundException("Produto com ID " + productId + " não encontrado!"));
 
         if (!rootProduct.getSeller().getId().equals(sellerId)) {
             throw new RuntimeException("Acesso negado: Você só pode adicionar variações aos seus próprios produtos.");
@@ -144,7 +145,7 @@ public class ProductService {
             Long sellerId) {
 
         ProductVariation foundVariation = productVariationRepository.findById(variationId)
-                .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
+                .orElseThrow(() -> new NotFoundException("Variação com ID " + variationId + " não encontrado!"));
 
         if (!foundVariation.getProduct().getId().equals(productId)) {
             throw new RuntimeException("Esta variação não pertence ao produto informado.");
@@ -170,7 +171,7 @@ public class ProductService {
             Long sellerId) {
 
         ProductVariation foundVariation = productVariationRepository.findById(variationId)
-                .orElseThrow(() -> new RuntimeException("Variação não encontrada!"));
+                .orElseThrow(() -> new NotFoundException("Variação com ID " + variationId + " não encontrado!"));
 
         if (!foundVariation.getProduct().getId().equals(productId)) {
             throw new RuntimeException("Esta variação não pertence ao produto informado.");
