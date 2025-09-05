@@ -2,7 +2,6 @@ package br.com.iff.marketplace.product.controller;
 
 import br.com.iff.marketplace.product.service.ProductSearchService;
 import br.com.iff.marketplace.product.dto.ProductResponseDTO;
-import br.com.iff.marketplace.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,7 +1,6 @@
 package br.com.iff.marketplace.category.dto;
 
 import br.com.iff.marketplace.category.Category;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data

@@ -2,7 +2,6 @@ package br.com.iff.marketplace.product.controller;
 
 import br.com.iff.marketplace.product.dto.*;
 import br.com.iff.marketplace.product.service.ProductManagementService;
-import br.com.iff.marketplace.product.service.ProductService;
 import br.com.iff.marketplace.product.service.ProductVariationService;
 import br.com.iff.marketplace.user.User;
 import jakarta.validation.Valid;
@@ -14,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/seller/products")

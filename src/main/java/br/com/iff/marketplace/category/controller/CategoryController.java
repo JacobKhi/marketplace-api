@@ -1,6 +1,5 @@
 package br.com.iff.marketplace.category.controller;
 
-import br.com.iff.marketplace.category.Category;
 import br.com.iff.marketplace.category.dto.CategoryResponseDTO;
 import br.com.iff.marketplace.category.dto.CreateCategoryDTO;
 import br.com.iff.marketplace.category.service.CategoryService;
