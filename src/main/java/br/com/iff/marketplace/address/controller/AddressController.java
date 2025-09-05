@@ -6,13 +6,13 @@ import br.com.iff.marketplace.address.service.AddressService;
 import br.com.iff.marketplace.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/addresses")
@@ -23,33 +23,39 @@ public class AddressController {
     private final AddressService addressService;
 
     @GetMapping
-    public ResponseEntity<List<AddressResponseDTO>> listMyAddresses(Authentication authentication) {
+    public ResponseEntity<Page<AddressResponseDTO>> listMyAddresses(
+            @AuthenticationPrincipal User user,
+            Pageable pageable) {
 
-        User user = (User) authentication.getPrincipal();
-        List<AddressResponseDTO> foundAddresses = addressService.findAddressesByUser(user);
-
-        return ResponseEntity.ok(foundAddresses);
+        Page<AddressResponseDTO> addressesPage = addressService.listAllAddresses(user, pageable);
+        return ResponseEntity.ok(addressesPage);
     }
 
     @PostMapping
     public ResponseEntity<AddressResponseDTO> addAddress(
             @RequestBody @Valid AddressRequestDTO addressDTO,
-            Authentication authentication) {
+            @AuthenticationPrincipal User user) {
 
-        User user = (User) authentication.getPrincipal();
         AddressResponseDTO newAddress = addressService.addAddress(addressDTO, user);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(newAddress);
+    }
+
+    @PutMapping("/{addressId}")
+    public ResponseEntity<AddressResponseDTO> updateAddress(
+            @PathVariable Long addressId,
+            @RequestBody @Valid AddressRequestDTO addressDTO,
+            @AuthenticationPrincipal User user) {
+
+        AddressResponseDTO updatedAddress = addressService.updateAddress(addressId, addressDTO, user);
+        return ResponseEntity.ok(updatedAddress);
     }
 
     @DeleteMapping("/{addressId}")
     public ResponseEntity<Void> deleteAddress(
             @PathVariable Long addressId,
-            Authentication authentication){
+            @AuthenticationPrincipal User user){
 
-        User user = (User) authentication.getPrincipal();
         addressService.deleteAddress(addressId, user);
-
         return ResponseEntity.ok().build();
     }
 
