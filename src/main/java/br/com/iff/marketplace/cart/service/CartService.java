@@ -12,6 +12,7 @@ import br.com.iff.marketplace.cart.dto.AddItemToCartDTO;
 import br.com.iff.marketplace.user.User;
 import br.com.iff.marketplace.product.ProductVariation;
 import org.springframework.transaction.annotation.Transactional;
+import br.com.iff.marketplace.exception.NotFoundException;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -24,32 +25,58 @@ public class CartService {
     private final ProductVariationRepository productVariationRepository;
     private final UserRepository userRepository;
 
+    public CartResponseDTO getCartForUser(Long customerId) {
+
+        ShoppingCart cart = getOrCreateCart(customerId);
+
+        BigDecimal totalAmount = cart.getItems().stream()
+                .map(item -> item.getVariation().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        CartResponseDTO responseDTO = new CartResponseDTO(cart);
+
+        responseDTO.setTotalAmount(totalAmount);
+
+        return responseDTO;
+    }
+
     private ShoppingCart getOrCreateCart(Long customerId){
         return shoppingCartRepository.findByUserId(customerId)
                 .orElseGet(() -> {
                     ShoppingCart newCart = new ShoppingCart();
                     User customer = userRepository.findById(customerId)
-                            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                            .orElseThrow(() -> new NotFoundException("Usuário com ID " + customerId + " não encontrado"));
                     newCart.setUser(customer);
                     return shoppingCartRepository.save(newCart);
                 });
     }
 
     @Transactional
-    public CartResponseDTO addItemToCart(Long customerId, AddItemToCartDTO itemDTO) {
+    public CartResponseDTO addItemToCart(
+            Long customerId,
+            AddItemToCartDTO itemDTO) {
 
         ShoppingCart cart = getOrCreateCart(customerId);
 
         ProductVariation productVariation = productVariationRepository.findById(itemDTO.getVariationId())
-                .orElseThrow(() -> new RuntimeException("Variação de produto não encontrada!"));
+                .orElseThrow(() -> new NotFoundException("Variação de produto com ID " + itemDTO.getVariationId() + " não encontrada!"));
 
-        Optional<ShoppingCartItem> searchForExistingProducts = cart.getItems().stream()
+        if (productVariation.getStock() < itemDTO.getQuantity()) {
+            throw new IllegalStateException("Estoque insuficiente para a quantidade solicitada. Disponível: " + productVariation.getStock());
+        }
+
+        Optional<ShoppingCartItem> existingItem  = cart.getItems().stream()
                 .filter(item -> item.getVariation().getId().equals(itemDTO.getVariationId()))
                 .findFirst();
 
-        if (searchForExistingProducts.isPresent()) {
-            ShoppingCartItem itemExistente = searchForExistingProducts.get();
-            itemExistente.setQuantity(itemExistente.getQuantity() + itemDTO.getQuantity());
+        if (existingItem.isPresent()) {
+            ShoppingCartItem item = existingItem.get();
+            int newQuantity = item.getQuantity() + itemDTO.getQuantity();
+
+            if (productVariation.getStock() < newQuantity) {
+                throw new IllegalStateException("Estoque insuficiente para adicionar mais unidades. Quantidade no carrinho: " + item.getQuantity() + ", Disponível: " + productVariation.getStock());
+            }
+            item.setQuantity(newQuantity);
         } else {
             ShoppingCartItem newItem = new ShoppingCartItem();
             newItem.setCart(cart);
@@ -59,7 +86,6 @@ public class CartService {
         }
 
         shoppingCartRepository.save(cart);
-
         return getCartForUser(customerId);
     }
 
@@ -75,7 +101,6 @@ public class CartService {
         }
 
         shoppingCartRepository.save(cart);
-
         return getCartForUser(customerId);
     }
 
@@ -89,7 +114,7 @@ public class CartService {
         ShoppingCartItem itemToUpdate = cart.getItems().stream()
                 .filter(item -> item.getId().equals(itemId))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Item não encontrado no carrinho!"));
+                .orElseThrow(() -> new NotFoundException("Item de Id " + itemId + " não encontrado no carrinho!"));
 
         if (itemToUpdate.getVariation().getStock() < newQuantity) {
             throw new RuntimeException("Estoque insuficiente. Disponível: " + itemToUpdate.getVariation().getStock());
@@ -98,23 +123,7 @@ public class CartService {
         itemToUpdate.setQuantity(newQuantity);
 
         shoppingCartRepository.save(cart);
-
         return getCartForUser(customerId);
-    }
-
-    public CartResponseDTO getCartForUser(Long customerId) {
-
-        ShoppingCart cart = getOrCreateCart(customerId);
-
-        BigDecimal totalAmount = cart.getItems().stream()
-                .map(item -> item.getVariation().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        CartResponseDTO responseDTO = new CartResponseDTO(cart);
-
-        responseDTO.setTotalAmount(totalAmount);
-
-        return responseDTO;
     }
 
 }

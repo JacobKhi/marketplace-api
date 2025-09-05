@@ -9,6 +9,6 @@ import java.util.Optional;
 @Repository
 public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Long> {
 
-    // Método para encontrar um carrinho pelo ID do usuário
     Optional<ShoppingCart> findByUserId(Long userId);
+
 }
