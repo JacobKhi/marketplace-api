@@ -1,11 +1,10 @@
 package br.com.iff.marketplace.order.controller;
 
-import br.com.iff.marketplace.order.Order;
 import br.com.iff.marketplace.order.dto.AddTrackingDTO;
 import br.com.iff.marketplace.order.dto.OrderResponseDTO;
 import br.com.iff.marketplace.order.dto.UpdateOrderStatusDTO;
-import br.com.iff.marketplace.order.enums.OrderStatus;
-import br.com.iff.marketplace.order.service.OrderService;
+import br.com.iff.marketplace.order.service.OrderQueryService;
+import br.com.iff.marketplace.order.service.SellerOrderService;
 import br.com.iff.marketplace.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/seller/orders")
@@ -26,14 +21,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OrderSellerController {
 
-    private final OrderService orderService;
+    private final SellerOrderService sellerOrderService;
+    private final OrderQueryService orderQueryService;
 
     @GetMapping
     public ResponseEntity<Page<OrderResponseDTO>> listSellerOrders(
             @AuthenticationPrincipal User seller,
             Pageable pageable) {
 
-        Page<OrderResponseDTO> ordersPage = orderService.findAllOrdersForUser(seller, pageable);
+        Page<OrderResponseDTO> ordersPage = orderQueryService.findAllOrdersForUser(seller, pageable);
         return ResponseEntity.ok(ordersPage);
     }
 
@@ -43,7 +39,7 @@ public class OrderSellerController {
             @RequestBody @Valid UpdateOrderStatusDTO statusDTO,
             @AuthenticationPrincipal User seller) {
 
-        OrderResponseDTO updatedOrder = orderService.updateOrderStatus(orderId, statusDTO.getNewStatus(), seller.getId());
+        OrderResponseDTO updatedOrder = sellerOrderService.updateOrderStatus(orderId, statusDTO.getNewStatus(), seller.getId());
         return ResponseEntity.ok(updatedOrder);
     }
 
@@ -53,7 +49,7 @@ public class OrderSellerController {
             @RequestBody @Valid AddTrackingDTO trackingDTO,
             @AuthenticationPrincipal User seller) {
 
-        OrderResponseDTO updatedOrder = orderService.addTrackingCode(orderId, trackingDTO.getTrackingCode(), seller.getId());
+        OrderResponseDTO updatedOrder = sellerOrderService.addTrackingCode(orderId, trackingDTO.getTrackingCode(), seller.getId());
         return ResponseEntity.ok(updatedOrder);
     }
 
