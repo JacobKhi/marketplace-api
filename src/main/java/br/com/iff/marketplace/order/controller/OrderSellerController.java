@@ -9,9 +9,12 @@ import br.com.iff.marketplace.order.service.OrderService;
 import br.com.iff.marketplace.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,21 +29,21 @@ public class OrderSellerController {
     private final OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<List<OrderResponseDTO>> listSellerOrders(Authentication authentication) {
-        User seller = (User) authentication.getPrincipal();
-        List<OrderResponseDTO> orders = orderService.findAllOrdersForUser(seller);
-        return ResponseEntity.ok(orders);
+    public ResponseEntity<Page<OrderResponseDTO>> listSellerOrders(
+            @AuthenticationPrincipal User seller,
+            Pageable pageable) {
+
+        Page<OrderResponseDTO> ordersPage = orderService.findAllOrdersForUser(seller, pageable);
+        return ResponseEntity.ok(ordersPage);
     }
 
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<OrderResponseDTO> updateOrderStatus(
             @PathVariable Long orderId,
             @RequestBody @Valid UpdateOrderStatusDTO statusDTO,
-            Authentication authentication) {
+            @AuthenticationPrincipal User seller) {
 
-        User seller = (User) authentication.getPrincipal();
         OrderResponseDTO updatedOrder = orderService.updateOrderStatus(orderId, statusDTO.getNewStatus(), seller.getId());
-
         return ResponseEntity.ok(updatedOrder);
     }
 
@@ -48,11 +51,9 @@ public class OrderSellerController {
     public ResponseEntity<OrderResponseDTO> adicionarCodigoRastreio(
             @PathVariable Long orderId,
             @RequestBody @Valid AddTrackingDTO trackingDTO,
-            Authentication authentication) {
+            @AuthenticationPrincipal User seller) {
 
-        User seller = (User) authentication.getPrincipal();
         OrderResponseDTO updatedOrder = orderService.addTrackingCode(orderId, trackingDTO.getTrackingCode(), seller.getId());
-
         return ResponseEntity.ok(updatedOrder);
     }
 

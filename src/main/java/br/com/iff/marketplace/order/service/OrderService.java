@@ -1,5 +1,6 @@
 package br.com.iff.marketplace.order.service;
 
+import br.com.iff.marketplace.exception.NotFoundException;
 import br.com.iff.marketplace.order.*;
 import br.com.iff.marketplace.order.dto.OrderItemRequestDTO;
 import br.com.iff.marketplace.order.dto.OrderRequestDTO;
@@ -16,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -32,32 +35,35 @@ import br.com.iff.marketplace.cart.repository.ShoppingCartRepository;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ProductVariationRepository productVariationRepository;
     private final ShoppingCartRepository carrinhoRepository;
 
-    public List<OrderResponseDTO> findAllOrdersForUser(User authenticatedUser) {
+    public Page<OrderResponseDTO> findAllOrdersForUser(
+            User authenticatedUser,
+            Pageable pageable) {
 
-        List<Order> orders;
+        Page<Order> ordersPage;
 
         if (authenticatedUser.getProfile() == UserProfiles.CUSTOMER) {
-            orders = orderRepository.findByCustomerId(authenticatedUser.getId());
-        } else if (authenticatedUser.getProfile() == UserProfiles.SELLER) {
-            orders = orderRepository.findBySellerId(authenticatedUser.getId());
-        } else {
-            orders = orderRepository.findAll();
+            ordersPage = orderRepository.findByCustomerId(authenticatedUser.getId(), pageable);
+        }
+        else if (authenticatedUser.getProfile() == UserProfiles.SELLER) {
+            ordersPage = orderRepository.findBySellerId(authenticatedUser.getId(), pageable);
+        }
+        else {
+            ordersPage = orderRepository.findAll(pageable);
         }
 
-        return orders.stream()
-                .map(OrderResponseDTO::new)
-                .collect(Collectors.toList());
+        return ordersPage.map(OrderResponseDTO::new);
     }
 
-    public OrderResponseDTO findOrderById(Long orderId, User authenticatedUser) {
+    public OrderResponseDTO findOrderById(
+            Long orderId,
+            User authenticatedUser) {
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
+                .orElseThrow(() -> new NotFoundException("Pedido com ID " + orderId + " não encontrado!"));
 
         boolean isTheCustomer = order.getCustomer().getId().equals(authenticatedUser.getId());
 
@@ -66,16 +72,19 @@ public class OrderService {
 
         if (isTheCustomer || isSellerOfAnItem || authenticatedUser.getProfile() == UserProfiles.ADMIN) {
             return new OrderResponseDTO(order);
-        } else {
+        }
+        else {
             throw new AccessDeniedException("Você não tem permissão para visualizar este pedido.");
         }
     }
 
     @Transactional
-    public OrderResponseDTO createDirectOrder(OrderRequestDTO orderDTO, Long customerId) {
+    public OrderResponseDTO createDirectOrder(
+            OrderRequestDTO orderDTO,
+            Long customerId) {
 
         User customer = userRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Comprador não encontrado!"));
+                .orElseThrow(() -> new NotFoundException("Comprador com ID " + customerId + " não encontrado!"));
 
         Order order = new Order();
         order.setCustomer(customer);
@@ -88,7 +97,7 @@ public class OrderService {
 
         for (OrderItemRequestDTO itemDTO : orderDTO.getItems()) {
             ProductVariation variation = productVariationRepository.findById(itemDTO.getVariationId())
-                    .orElseThrow(() -> new RuntimeException("Variação de produto não encontrada!"));
+                    .orElseThrow(() -> new NotFoundException("Variação de ID " + itemDTO.getVariationId() + " produto não encontrada!"));
 
             if (variation.getStock() < itemDTO.getQuantity()) {
                 throw new RuntimeException("Estoque insuficiente para a variação: " + variation.getName());
@@ -111,18 +120,17 @@ public class OrderService {
         order.setTotalAmount(totalAmount);
 
         Order savedOrder = orderRepository.save(order);
-
-        return new  OrderResponseDTO(savedOrder);
+        return new OrderResponseDTO(savedOrder);
     }
 
     @Transactional
     public OrderResponseDTO createOrderFromCart(Long customerId) {
 
         User customer = userRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+                .orElseThrow(() -> new NotFoundException("Comprador com ID " + customerId + " não encontrado!"));
 
         ShoppingCart cart = carrinhoRepository.findByUserId(customer.getId())
-                .orElseThrow(() -> new RuntimeException("Usuário não possui um carrinho de compras."));
+                .orElseThrow(() -> new NotFoundException("Comprador de ID " + customerId + " não não possui um carrinho!"));
 
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
             throw new RuntimeException("Seu carrinho está vazio!");
@@ -163,13 +171,16 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
 
         cart.getItems().clear();
-        carrinhoRepository.save(cart);
 
+        carrinhoRepository.save(cart);
         return new OrderResponseDTO(savedOrder);
     }
 
     @Transactional
-    public OrderResponseDTO addTrackingCode(Long orderId, String trackingCode, Long sellerId) {
+    public OrderResponseDTO addTrackingCode(
+            Long orderId,
+            String trackingCode,
+            Long sellerId) {
 
         Order foundOrder = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
@@ -179,28 +190,30 @@ public class OrderService {
         foundOrder.setTrackingCode(trackingCode);
 
         Order savedOrder = orderRepository.save(foundOrder);
-
         return new OrderResponseDTO(savedOrder);
     }
 
     @Transactional
-    public OrderResponseDTO updateOrderStatus(Long orderId, OrderStatus newStatus, Long sellerId) {
+    public OrderResponseDTO updateOrderStatus(
+            Long orderId,
+            OrderStatus newStatus,
+            Long sellerId) {
 
         Order foundOrder = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
+                .orElseThrow(() -> new RuntimeException("Pedido de ID " + orderId + " não encontrado!"));
 
         authorizeSellerForOrder(foundOrder, sellerId);
 
         foundOrder.setStatus(newStatus);
 
         Order updatedOrder = orderRepository.save(foundOrder);
-
         return new OrderResponseDTO(updatedOrder);
     }
 
-    private void authorizeSellerForOrder(Order order, Long sellerId) {
+    private void authorizeSellerForOrder(
+            Order order,
+            Long sellerId) {
 
-        // Verifica se pelo menos 1 item do pedido é do vendedor
         boolean isSellerOfAnItem = order.getItems().stream()
                 .anyMatch(item -> item.getProduct().getSeller().getId().equals(sellerId));
 
@@ -208,6 +221,5 @@ public class OrderService {
             throw new RuntimeException("Acesso negado: Você não é o vendedor de nenhum item neste pedido.");
         }
     }
-
 
 }
