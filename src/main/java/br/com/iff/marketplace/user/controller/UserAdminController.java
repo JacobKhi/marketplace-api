@@ -1,14 +1,13 @@
 package br.com.iff.marketplace.user.controller;
 
 import br.com.iff.marketplace.user.dto.UserResponseDTO;
-import br.com.iff.marketplace.user.service.UserService;
+import br.com.iff.marketplace.user.service.UserAdminService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/admin/users")
@@ -16,50 +15,47 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserAdminController {
 
-    private final UserService userService;
+    private final UserAdminService userAdminService;
 
-    // Endpoint para ver todos os usuários
     @GetMapping()
-    public ResponseEntity<List<UserResponseDTO>> listAllUsers() {
-        List<UserResponseDTO> usuarios = userService.findAll(true).stream()
-                .map(UserResponseDTO::new)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(usuarios);
+    public ResponseEntity<Page<UserResponseDTO>> listAllUsers(Pageable pageable) {
+
+        Page<UserResponseDTO> usersPage = userAdminService.findAll(true, pageable).map(UserResponseDTO::new);
+        return ResponseEntity.ok(usersPage);
     }
 
-    // Endpoint para deletar qualquer usuário
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteById(id);
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+
+        userAdminService.deleteById(userId);
         return ResponseEntity.noContent().build();
     }
 
-    // Endpoint para suspender ou reativar um usuário
-    @PatchMapping("/{id}/activation")
-    public ResponseEntity<Void> toggleUserActivation(@PathVariable Long id) {
-        userService.toggleActivation(id);
+    @PatchMapping("/{userId}/activation")
+    public ResponseEntity<Void> toggleUserActivation(@PathVariable Long userId) {
+
+        userAdminService.toggleActivation(userId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/seller-requests")
-    public ResponseEntity<List<UserResponseDTO>> listPendingSellerRequests() {
-        List<UserResponseDTO> pendingRequests = userService.findPendingSellerRequests().stream()
-                .map(UserResponseDTO::new)
-                .collect(Collectors.toList());
+    public ResponseEntity<Page<UserResponseDTO>> listPendingSellerRequests(Pageable pageable) {
+
+        Page<UserResponseDTO> pendingRequests = userAdminService.findPendingSellerRequests(pageable).map(UserResponseDTO::new);
         return ResponseEntity.ok(pendingRequests);
     }
 
-    // Endpoint para APROVAR uma solicitação de vendedor
     @PostMapping("/{userId}/approve-seller")
     public ResponseEntity<String> approveSellerRequest(@PathVariable Long userId) {
-        userService.approveSellerRequest(userId);
+
+        userAdminService.approveSellerRequest(userId);
         return ResponseEntity.ok("Solicitação de vendedor para o usuário " + userId + " foi aprovada com sucesso.");
     }
 
-    // Endpoint para REJEITAR uma solicitação de vendedor
     @PostMapping("/{userId}/reject-seller")
     public ResponseEntity<String> rejectSellerRequest(@PathVariable Long userId) {
-        userService.rejectSellerRequest(userId);
+
+        userAdminService.rejectSellerRequest(userId);
         return ResponseEntity.ok("Solicitação de vendedor para o usuário " + userId + " foi rejeitada.");
     }
 
